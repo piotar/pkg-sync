@@ -31,27 +31,17 @@ export default new Command('sync')
             dot: true,
         };
         const excludeMatcher = picomatch(excludeRules, matcherOptions);
-        const includeMatcher = picomatch(
-            applyGlobToDirs(includeDirectoriesRules),
-            matcherOptions,
-        );
+        const includeMatcher = picomatch(applyGlobToDirs(includeDirectoriesRules), matcherOptions);
 
         const appData = getApplicationData();
         const packages = relatedPackages.map((packageName) => {
             const packageRecord = appData.packages[packageName];
-            const target = resolve(
-                packageJson.$dirname,
-                'node_modules',
-                packageName,
-            );
+            const target = resolve(packageJson.$dirname, 'node_modules', packageName);
 
             return new SyncWatcher(packageRecord.path, target, {
                 name: packageName,
                 include: packageRecord.dir?.length
-                    ? picomatch(
-                          applyGlobToDirs(packageRecord.dir),
-                          matcherOptions,
-                      )
+                    ? picomatch(applyGlobToDirs(packageRecord.dir), matcherOptions)
                     : includeMatcher,
                 exclude: excludeMatcher,
             });

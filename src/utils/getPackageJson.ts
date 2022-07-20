@@ -12,10 +12,6 @@ export interface PackageJson {
     optionalDependencies?: Record<string, string>;
 }
 
-export function getPackageJson(
-    path?: string,
-): JsonFile<PackageJson> & PackageJson {
-    return JsonFile.load<PackageJson>(
-        findClosestFile('package.json', path ? resolve(path) : undefined),
-    );
+export function getPackageJson(path?: string): JsonFile<PackageJson> & PackageJson {
+    return JsonFile.load<PackageJson>(findClosestFile('package.json', path ? resolve(path) : undefined));
 }

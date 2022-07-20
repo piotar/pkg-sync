@@ -21,9 +21,7 @@ export default new Command('add')
 
         const appData = getApplicationData();
         if (appData.packages[name] && !options.force) {
-            throw new ApplicationError(
-                'Package already exists, use "--force" flag to override it',
-            );
+            throw new ApplicationError('Package already exists, use "--force" flag to override it');
         }
 
         appData.packages[name] = {

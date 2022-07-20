@@ -1,11 +1,4 @@
-import {
-    cpSync,
-    rmSync,
-    watch,
-    existsSync,
-    realpathSync,
-    readdirSync,
-} from 'node:fs';
+import { cpSync, rmSync, watch, existsSync, realpathSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import picomatch from 'picomatch';
 import chalk from 'chalk';
@@ -30,13 +23,8 @@ export class SyncWatcher extends Set<string> {
 
         if (realpathSync(source) === realpathSync(target)) {
             return Object.assign(this, {
-                watch: () =>
-                    this.log(
-                        '[WATCH]',
-                        'Source and destination path are equal',
-                    ),
-                copy: () =>
-                    this.log('[COPY]', 'Source and destination path are equal'),
+                watch: () => this.log('[WATCH]', 'Source and destination path are equal'),
+                copy: () => this.log('[COPY]', 'Source and destination path are equal'),
             });
         }
     }
@@ -93,9 +81,6 @@ export class SyncWatcher extends Set<string> {
     }
 
     private isValid(filename: string): boolean {
-        return this.options
-            ? this.options?.include(filename) &&
-                  !this.options?.exclude(filename)
-            : true;
+        return this.options ? this.options?.include(filename) && !this.options?.exclude(filename) : true;
     }
 }

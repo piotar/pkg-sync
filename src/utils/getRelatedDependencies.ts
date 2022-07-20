@@ -9,7 +9,5 @@ export function getRelatedDependencies(packageJson: PackageJson): string[] {
     ];
 
     const appData = getApplicationData();
-    return Object.keys(appData.packages).filter((dependency) =>
-        dependencies.includes(dependency),
-    );
+    return Object.keys(appData.packages).filter((dependency) => dependencies.includes(dependency));
 }

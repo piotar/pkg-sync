@@ -28,15 +28,8 @@ export async function checkUpdates(packageJson: PackageJson) {
         if (`dist-tags` in data) {
             const { latest } = data['dist-tags'] ?? {};
             if (latest !== packageJson.version) {
-                console.log(
-                    'Update available!',
-                    packageJson.version,
-                    '->',
-                    latest,
-                );
-                console.log(
-                    `Run "npm install -g ${packageJson.name}" to update.`,
-                );
+                console.log('Update available!', packageJson.version, '->', latest);
+                console.log(`Run "npm install -g ${packageJson.name}" to update.`);
                 console.log();
             }
         }
