@@ -1,0 +1,54 @@
+{
+    "name": "@piotar/pkg-sync",
+    "version": "1.0.0",
+    "description": "Package synchronization",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/piotar/pkg-sync.git"
+    },
+    "keywords": [
+        "copy files",
+        "copy projects",
+        "sync packages",
+        "synchronization packages",
+        "watch files"
+    ],
+    "author": "Piotr Tarasiuk",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/piotar/pkg-sync/issues"
+    },
+    "homepage": "https://github.com/piotar/pkg-sync",
+    "main": "dist/cli.ts",
+    "bin": {
+        "pkg-sync": "./dist/cli.js"
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "dev": "tsc --watch",
+        "prebuild": "rimraf dist",
+        "build": "tsc",
+        "type-check": "tsc --noEmit",
+        "prepare": "husky install",
+        "prepublishOnly": "npm run build"
+    },
+    "dependencies": {
+        "chalk": "4.1.2",
+        "commander": "9.4.0",
+        "picomatch": "2.3.1"
+    },
+    "devDependencies": {
+        "@types/node": "18.0.6",
+        "@types/picomatch": "2.3.0",
+        "husky": "8.0.1",
+        "lint-staged": "13.0.3",
+        "prettier": "2.7.1",
+        "rimraf": "^3.0.2",
+        "typescript": "4.7.4"
+    },
+    "lint-staged": {
+        "**/*.{js,ts,json}": "prettier --write"
+    }
+}
