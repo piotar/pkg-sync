@@ -28,7 +28,7 @@ export async function checkUpdates(packageJson: PackageJson) {
 
         if (`dist-tags` in data) {
             const { latest } = data['dist-tags'] ?? {};
-            if (latest !== packageJson.version || true) {
+            if (latest !== packageJson.version) {
                 console.log();
                 console.log(chalk.yellowBright`Update available! ${packageJson.version} -> ${latest}`);
                 console.log(chalk.yellowBright`Run "npm install -g ${packageJson.name}" to update.`);
