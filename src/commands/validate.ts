@@ -5,7 +5,7 @@ import { ApplicationError } from '../models/ApplicationError';
 
 export default new Command('validate')
     .description('Show coverage packages from project')
-    .argument('[path]', 'Path to project')
+    .argument('[path]', 'Path to project (path not set will be set to closest package.json)')
     .action((path: string) => {
         const packageJson = getPackageJson(path);
         const packages = getRelatedDependencies(packageJson);

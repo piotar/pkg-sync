@@ -15,7 +15,7 @@ interface SyncCommandOptions {
 
 export default new Command('sync')
     .description('Sync and watch packages in project')
-    .argument('[path]', 'Path to project')
+    .argument('[path]', 'Path to project (path not set will be set to closest package.json)')
     .option('--no-watch', 'Disable watch files after sync')
     .action((path: string, options: SyncCommandOptions) => {
         const packageJson = getPackageJson(path);

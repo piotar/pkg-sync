@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import { request } from 'node:https';
 import { getApplicationData } from './getApplicationData';
 import { PackageJson } from './getPackageJson';
@@ -27,9 +28,10 @@ export async function checkUpdates(packageJson: PackageJson) {
 
         if (`dist-tags` in data) {
             const { latest } = data['dist-tags'] ?? {};
-            if (latest !== packageJson.version) {
-                console.log('Update available!', packageJson.version, '->', latest);
-                console.log(`Run "npm install -g ${packageJson.name}" to update.`);
+            if (latest !== packageJson.version || true) {
+                console.log();
+                console.log(chalk.yellowBright`Update available! ${packageJson.version} -> ${latest}`);
+                console.log(chalk.yellowBright`Run "npm install -g ${packageJson.name}" to update.`);
                 console.log();
             }
         }

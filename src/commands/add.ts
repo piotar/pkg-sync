@@ -11,10 +11,10 @@ interface AddCommandOptions {
 
 export default new Command('add')
     .description('Add package to sync')
-    .argument('[path]', 'Path to package')
-    .option('-n, --name <package>', 'Package name')
+    .argument('[path]', 'Path to package (path not set will be set to closest package.json)')
+    .option('-n, --name <package>', 'Package name (override name from package.json)')
     .option('-f, --force', 'Override package')
-    .option('-d, --dir [dirs...]', 'Directory to watch')
+    .option('-d, --dir [dirs...]', 'Directory to watch (override default values)')
     .action(async (path: string, options: AddCommandOptions) => {
         const packageJson = getPackageJson(path);
         const name = options.name ?? packageJson.name;
@@ -30,4 +30,5 @@ export default new Command('add')
         };
 
         appData.$save();
+        console.log(`${name} was added.`);
     });

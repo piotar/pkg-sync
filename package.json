@@ -1,7 +1,7 @@
 {
     "name": "@piotar/pkg-sync",
     "version": "1.0.0",
-    "description": "Package synchronization",
+    "description": "A utility for synchronization multiple packages, without any symlinks and any changes in projects(package.json, etc.).",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/piotar/pkg-sync.git"
@@ -26,6 +26,9 @@
     "files": [
         "dist"
     ],
+    "engines": {
+        "node": ">=16.7.0"
+    },
     "scripts": {
         "dev": "tsc --watch",
         "prebuild": "rimraf dist",
