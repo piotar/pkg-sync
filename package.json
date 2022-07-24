@@ -1,6 +1,6 @@
 {
     "name": "@piotar/pkg-sync",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A utility for synchronization multiple packages, without any symlinks and any changes in projects(package.json, etc.).",
     "repository": {
         "type": "git",
