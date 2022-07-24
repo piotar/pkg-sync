@@ -7,11 +7,13 @@
         "url": "git+https://github.com/piotar/pkg-sync.git"
     },
     "keywords": [
+        "cli",
         "copy files",
         "copy projects",
         "sync packages",
         "synchronization packages",
-        "watch files"
+        "watch files",
+        "dev-tool"
     ],
     "author": "Piotr Tarasiuk",
     "license": "MIT",
@@ -19,7 +21,7 @@
         "url": "https://github.com/piotar/pkg-sync/issues"
     },
     "homepage": "https://github.com/piotar/pkg-sync",
-    "main": "dist/cli.ts",
+    "main": "./dist/cli.ts",
     "bin": {
         "pkg-sync": "./dist/cli.js"
     },
@@ -48,7 +50,7 @@
         "husky": "8.0.1",
         "lint-staged": "13.0.3",
         "prettier": "2.7.1",
-        "rimraf": "^3.0.2",
+        "rimraf": "3.0.2",
         "typescript": "4.7.4"
     },
     "lint-staged": {
