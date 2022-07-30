@@ -37,7 +37,7 @@ We have a main project (`App`) and 2 dependencies (`Ui` and `Store`) with differ
     │   ├── node_modules
     │   ├── package.json
     │   └── etc...
-    └─ Store
+    └── Store
         ├── node_modules
         ├── package.json
         └── etc...
@@ -68,13 +68,13 @@ Options:
   -d, --dir [dirs...]   Directory to watch (override default values)
 ```
 
-## remove <package>
+## remove &lt;package&gt;
 
 Remove package from sync
 
 ```
 Arguments:
-  package     Package name (name not set or set as "." will be set from closest package.json)
+  package     Package name (name set as "." will be set from closest package.json)
 ```
 
 ## list|ls

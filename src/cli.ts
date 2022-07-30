@@ -13,7 +13,7 @@ import { checkUpdates } from './utils/checkUpdates';
 
 const packageJson = getPackageJson(__dirname);
 
-if (!packageJson.name) {
+if (!packageJson.$fileExists) {
     throw new Error('Missing package.json');
 }
 

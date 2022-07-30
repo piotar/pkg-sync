@@ -1,6 +1,7 @@
 import { resolve } from 'node:path';
 import { JsonFile } from '../models/JsonFile';
-import { findClosestFile } from './findClosestFile';
+import { findClosestPath } from './findClosestPath';
+import { getPackageDependencies } from './getPackageDependencies';
 
 export interface PackageJson {
     name: string;
@@ -10,8 +11,23 @@ export interface PackageJson {
     devDependencies?: Record<string, string>;
     peerDependencies?: Record<string, string>;
     optionalDependencies?: Record<string, string>;
+    $dependencies: Set<string>;
 }
 
-export function getPackageJson(path?: string): JsonFile<PackageJson> & PackageJson {
-    return JsonFile.load<PackageJson>(findClosestFile('package.json', path ? resolve(path) : undefined));
+export type PackageJsonFile = JsonFile<PackageJson> & PackageJson;
+
+const cache: Map<string, PackageJsonFile> = new Map();
+
+export function getPackageJson(path?: string): PackageJsonFile {
+    const packagePath = findClosestPath('package.json', path ? resolve(path) : undefined);
+    let json = cache.get(packagePath);
+    if (!json) {
+        json = new Proxy(JsonFile.load<PackageJson>(packagePath), {
+            get(target, name) {
+                return name === '$dependencies' ? getPackageDependencies(target) : target[name];
+            },
+        });
+        cache.set(packagePath, json);
+    }
+    return json;
 }

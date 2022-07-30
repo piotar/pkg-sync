@@ -1,13 +1,9 @@
 import { getApplicationData } from './getApplicationData';
-import { PackageJson } from './getPackageJson';
+import { getDependencies } from './getDependencies';
+import { PackageJsonFile } from './getPackageJson';
 
-export function getRelatedDependencies(packageJson: PackageJson): string[] {
-    const dependencies = [
-        ...Object.keys(packageJson.dependencies ?? {}),
-        ...Object.keys(packageJson.devDependencies ?? {}),
-        ...Object.keys(packageJson.peerDependencies ?? {}),
-    ];
-
-    const appData = getApplicationData();
-    return Object.keys(appData.packages).filter((dependency) => dependencies.includes(dependency));
+export function getRelatedDependencies(packageJson: PackageJsonFile, depth: number): PackageJsonFile[] {
+    const { packages } = getDependencies(packageJson, packageJson.$dirname, depth);
+    const storedPackages = Object.keys(getApplicationData().packages);
+    return [...packages.keys()].filter((packageJson) => storedPackages.includes(packageJson.name));
 }
