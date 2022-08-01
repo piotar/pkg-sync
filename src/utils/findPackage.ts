@@ -1,4 +1,4 @@
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { findClosestPath } from './findClosestPath';
 import { getPackageJson, PackageJsonFile } from './getPackageJson';
 
@@ -8,7 +8,7 @@ export function findPackage(name: string, path: string): PackageJsonFile {
         return packageJson;
     }
     try {
-        return getPackageJson(findClosestPath('node_modules', path));
+        return getPackageJson(findClosestPath('node_modules', dirname(path)));
     } catch (e) {
         return packageJson;
     }

@@ -9,6 +9,7 @@ export default new Command('list')
     .description('Show all stored packages')
     .action(() => {
         console.log('Application data file path:', PROJECT_DATA_FILE_PATH);
+        console.log('Default watch directories:', includeDirectoriesRules);
         const appData = getApplicationData();
         const packages = Object.keys(appData.packages);
         if (packages.length) {
@@ -16,8 +17,10 @@ export default new Command('list')
                 const { path, dir } = appData.packages[packageName];
                 console.log();
                 console.log(chalk.green`${packageName}`);
-                console.log('path:', path);
-                console.log('watch dirs:', dir ?? includeDirectoriesRules);
+                console.log('Path:', path);
+                if (dir) {
+                    console.log('Custom watch directories:', dir);
+                }
             });
         } else {
             console.log('There are no packages in the list');

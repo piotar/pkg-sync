@@ -13,15 +13,14 @@ export interface PackageDependencies {
 }
 
 export function getDependencies(
-    packageJson: PackageJson,
-    path: string,
+    packageJson: PackageJsonFile,
     depth: number,
     packages: Map<PackageJsonFile, PackageDependency> = new Map<PackageJsonFile, PackageDependency>(),
 ): PackageDependencies {
     const dependencies: PackageDependency[] = [];
 
     for (const packageName of packageJson.$dependencies) {
-        const dependency = findPackage(packageName, path);
+        const dependency = findPackage(packageName, packageJson.$dirname);
         const cached = packages.get(dependency);
         const result: PackageDependency = {
             dependency,
@@ -30,7 +29,7 @@ export function getDependencies(
         packages.set(result.dependency, result);
 
         if (!cached && result.dependency.$fileExists && depth > 0) {
-            const packageDependencies = getDependencies(result.dependency, path, depth - 1, packages);
+            const packageDependencies = getDependencies(result.dependency, depth - 1, packages);
             result.dependencies = packageDependencies.dependencies;
         }
 
