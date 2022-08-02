@@ -3,12 +3,13 @@ import { findClosestPath } from './findClosestPath';
 import { getPackageJson, PackageJsonFile } from './getPackageJson';
 
 export function findPackage(name: string, path: string): PackageJsonFile {
-    const packageJson = getPackageJson(resolve(path, 'node_modules', name));
+    const packageJson = getPackageJson(resolve(path, 'node_modules', name), true);
     if (packageJson.$fileExists) {
         return packageJson;
     }
     try {
-        return getPackageJson(findClosestPath('node_modules', dirname(path)));
+        const nodeModulesPath = findClosestPath('node_modules', dirname(path));
+        return getPackageJson(resolve(nodeModulesPath, name), true);
     } catch (e) {
         return packageJson;
     }

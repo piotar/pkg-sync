@@ -18,8 +18,9 @@ export type PackageJsonFile = JsonFile<PackageJson> & PackageJson;
 
 const cache: Map<string, PackageJsonFile> = new Map();
 
-export function getPackageJson(path?: string): PackageJsonFile {
-    const packagePath = findClosestPath('package.json', path ? resolve(path) : undefined);
+export function getPackageJson(path?: string, staticPath: boolean = false): PackageJsonFile {
+    const resolvePath = path ? resolve(path, 'package.json') : resolve('package.json');
+    const packagePath = staticPath ? resolvePath : findClosestPath('package.json', resolvePath);
     let json = cache.get(packagePath);
     if (!json) {
         json = new Proxy(JsonFile.load<PackageJson>(packagePath), {
