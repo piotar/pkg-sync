@@ -1,3 +1,4 @@
+import { existsSync, realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { JsonFile } from '../models/JsonFile';
 import { findClosestPath } from './findClosestPath';
@@ -21,14 +22,15 @@ const cache: Map<string, PackageJsonFile> = new Map();
 export function getPackageJson(path?: string, staticPath: boolean = false): PackageJsonFile {
     const resolvePath = path ? resolve(path, 'package.json') : resolve('package.json');
     const packagePath = staticPath ? resolvePath : findClosestPath('package.json', resolvePath);
-    let json = cache.get(packagePath);
+    const absolutePath = existsSync(packagePath) ? realpathSync(packagePath) : packagePath;
+    let json = cache.get(absolutePath);
     if (!json) {
-        json = new Proxy(JsonFile.load<PackageJson>(packagePath), {
+        json = new Proxy(JsonFile.load<PackageJson>(absolutePath), {
             get(target, name) {
                 return name === '$dependencies' ? getPackageDependencies(target) : target[name];
             },
         });
-        cache.set(packagePath, json);
+        cache.set(absolutePath, json);
     }
     return json;
 }
