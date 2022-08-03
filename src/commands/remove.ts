@@ -1,22 +1,26 @@
 import { Command } from 'commander';
 import { getPackageJson } from '../utils/getPackageJson';
 import { getApplicationData } from '../utils/getApplicationData';
-import { ApplicationError } from '../models/ApplicationError';
 
 export default new Command('remove')
+    .alias('rm')
     .description('Remove package from sync')
-    .argument('<package>', 'Package name (name set as "." will be set from closest package.json)', (name) => {
-        if (name === '.') {
-            return getPackageJson().name;
-        }
-        return name;
-    })
-    .action((name: string) => {
+    .argument(
+        '<packages...>',
+        'Package name (name set as "." will be set from closest package.json)',
+        (packages: string[]) => {
+            return packages.map((name) => (name === '.' ? getPackageJson().name : name));
+        },
+    )
+    .action((packages: string[]) => {
         const appData = getApplicationData();
-        if (!appData.packages[name]) {
-            throw new ApplicationError(`Package '${name}' does not exist in the list`);
+        for (const name of packages) {
+            if (!appData.packages[name]) {
+                console.log(`Package '${name}' does not exist in the list`);
+            } else {
+                console.log(`${name} was removed.`);
+                delete appData.packages[name];
+            }
         }
-        delete appData.packages[name];
         appData.$save();
-        console.log(`${name} was removed.`);
     });
