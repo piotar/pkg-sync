@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import picomatch from 'picomatch';
+import prompts from 'prompts';
 import { getPackageJson } from '../utils/getPackageJson';
 import { getRelatedDependencies } from '../utils/getRelatedDependencies';
 import { getApplicationData } from '../utils/getApplicationData';
@@ -8,20 +9,40 @@ import { SyncWatcher } from '../models/SyncWatcher';
 import { ApplicationError } from '../models/ApplicationError';
 import { applyGlobToDirs } from '../utils/applyGlobToDir';
 import depthOption from '../options/depth';
+import interactiveOption from '../options/interactive';
 
 interface SyncCommandOptions {
     watch: boolean;
     depth: number;
+    interactive: boolean;
 }
 
 export default new Command('sync')
     .description('Sync and watch packages in project')
     .argument('[path]', 'Path to project (path not set will be set to closest package.json)')
     .option('--no-watch', 'Disable watch files after sync')
+    .addOption(interactiveOption)
     .addOption(depthOption)
-    .action((path: string, options: SyncCommandOptions) => {
+    .action(async (path: string, options: SyncCommandOptions) => {
         const packageJson = getPackageJson(path);
-        const relatedPackages = getRelatedDependencies(packageJson, options.depth);
+        let relatedPackages = getRelatedDependencies(packageJson, options.depth);
+
+        if (options.interactive && relatedPackages.length) {
+            relatedPackages = (
+                await prompts({
+                    instructions: false,
+                    type: 'multiselect',
+                    name: 'packages',
+                    message: 'Pick packages to sync',
+                    choices: relatedPackages.map((relatedPackage) => ({
+                        value: relatedPackage,
+                        title: relatedPackage.name,
+                        selected: true,
+                    })),
+                })
+            ).packages;
+        }
+
         if (!relatedPackages.length) {
             throw new ApplicationError('No related dependencies found');
         }

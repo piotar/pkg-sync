@@ -4,7 +4,6 @@ import { dirname } from 'node:path';
 export class JsonFile<T> {
     public readonly $fileExists: boolean = false;
     private readonly $data?: T;
-    private $isDirty: boolean = false;
 
     private constructor(private path: string = '', defaultJson?: T) {
         try {
@@ -22,21 +21,18 @@ export class JsonFile<T> {
             },
             set(target, name, value) {
                 if (target.$data) {
-                    target.$isDirty = true;
                     return (target.$data[name] = value);
                 }
             },
         }) as JsonFile<T> & T;
     }
 
-    public $save(force: boolean = false) {
-        if (this.$isDirty || force) {
-            const baseName = this.$dirname;
-            if (!existsSync(baseName)) {
-                mkdirSync(baseName, { recursive: true });
-            }
-            writeFileSync(this.path, JSON.stringify(this.$data));
+    public $save() {
+        const baseName = this.$dirname;
+        if (!existsSync(baseName)) {
+            mkdirSync(baseName, { recursive: true });
         }
+        writeFileSync(this.path, JSON.stringify(this.$data));
     }
 
     public get $dirname(): string {
