@@ -14,7 +14,26 @@ export function fetch(url: string | URL): Promise<string> {
     });
 }
 
-export async function checkUpdates(packageJson: PackageJson) {
+export async function getLatestVersion(packageJson: PackageJson): Promise<string> {
+    const url = new URL(packageJson.name, 'https://registry.npmjs.org/');
+    const result = await fetch(url);
+    const data = JSON.parse(result);
+
+    if (`dist-tags` in data) {
+        const { latest } = data['dist-tags'] ?? {};
+        return latest;
+    }
+    return packageJson.version;
+}
+
+export function updateConsoleMessage(packageJson: PackageJson, latest: string): void {
+    console.log();
+    console.log(chalk.yellowBright`Update available! ${packageJson.version} -> ${latest}`);
+    console.log(chalk.yellowBright`Run "npm install -g ${packageJson.name}" to update.`);
+    console.log();
+}
+
+export async function checkUpdates(packageJson: PackageJson): Promise<void> {
     const appData = getApplicationData();
     const now = Date.now();
 
@@ -22,18 +41,9 @@ export async function checkUpdates(packageJson: PackageJson) {
         return;
     }
     try {
-        const url = new URL(packageJson.name, 'https://registry.npmjs.org/');
-        const result = await fetch(url);
-        const data = JSON.parse(result);
-
-        if (`dist-tags` in data) {
-            const { latest } = data['dist-tags'] ?? {};
-            if (latest !== packageJson.version) {
-                console.log();
-                console.log(chalk.yellowBright`Update available! ${packageJson.version} -> ${latest}`);
-                console.log(chalk.yellowBright`Run "npm install -g ${packageJson.name}" to update.`);
-                console.log();
-            }
+        const latest = await getLatestVersion(packageJson);
+        if (latest !== packageJson.version) {
+            updateConsoleMessage(packageJson, latest);
         }
         appData.updateCheck = now;
         appData.$save();

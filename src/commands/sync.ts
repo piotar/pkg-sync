@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 import picomatch from 'picomatch';
 import prompts from 'prompts';
 import { getPackageJson } from '../utils/getPackageJson';
@@ -8,8 +8,9 @@ import { excludeRules, includeDirectoriesRules } from '../common/watchRules';
 import { SyncWatcher } from '../models/SyncWatcher';
 import { ApplicationError } from '../models/ApplicationError';
 import { applyGlobToDirs } from '../utils/applyGlobToDir';
-import depthOption from '../options/depth';
-import interactiveOption from '../options/interactive';
+import depthOption from './options/depth';
+import interactiveOption from './options/interactive';
+import pathArgument from './arguments/path';
 
 interface SyncCommandOptions {
     watch: boolean;
@@ -19,8 +20,8 @@ interface SyncCommandOptions {
 
 export default new Command('sync')
     .description('Sync and watch packages in project')
-    .argument('[path]', 'Path to project (path not set will be set to closest package.json)')
-    .option('--no-watch', 'Disable watch files after sync')
+    .addArgument(pathArgument)
+    .addOption(new Option('--no-watch', 'Disable watch files after sync'))
     .addOption(interactiveOption)
     .addOption(depthOption)
     .action(async (path: string, options: SyncCommandOptions) => {
@@ -43,11 +44,11 @@ export default new Command('sync')
             ).packages;
         }
 
-        if (!relatedPackages.length) {
+        if (!relatedPackages?.length) {
             throw new ApplicationError('No related dependencies found');
         }
 
-        console.log('Dependencies found', ...relatedPackages.map(({ name }) => name));
+        console.log('Dependencies to synchronization', ...relatedPackages.map(({ name }) => name));
 
         const matcherOptions: picomatch.PicomatchOptions = {
             nocase: true,

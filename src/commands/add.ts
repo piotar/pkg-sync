@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { getApplicationData } from '../utils/getApplicationData';
 import { getPackageJson } from '../utils/getPackageJson';
 import { ApplicationError } from '../models/ApplicationError';
+import pathArgument from './arguments/path';
 
 interface AddCommandOptions {
     name?: string;
@@ -11,7 +12,7 @@ interface AddCommandOptions {
 
 export default new Command('add')
     .description('Add package to sync')
-    .argument('[path]', 'Path to package (path not set will be set to closest package.json)')
+    .addArgument(pathArgument)
     .option('-n, --name <package>', 'Package name (override name from package.json)')
     .option('-f, --force', 'Override package')
     .option('-d, --dir [dirs...]', 'Directory to watch (override default values)')

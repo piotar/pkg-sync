@@ -3,7 +3,7 @@ import prompts from 'prompts';
 import { getPackageJson } from '../utils/getPackageJson';
 import { getApplicationData } from '../utils/getApplicationData';
 import { ApplicationError } from '../models/ApplicationError';
-import interactiveOption from '../options/interactive';
+import interactiveOption from './options/interactive';
 
 interface RemoveCommandOptions {
     interactive: boolean;
@@ -45,7 +45,7 @@ export default new Command('remove')
             ).packages;
         }
 
-        if (!selectedPackages.length) {
+        if (!selectedPackages?.length) {
             throw new ApplicationError('No packages provided');
         }
 
