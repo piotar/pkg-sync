@@ -2,7 +2,7 @@ import { cpSync, rmSync, watch, existsSync, realpathSync, readdirSync } from 'no
 import { resolve } from 'node:path';
 import picomatch from 'picomatch';
 import chalk from 'chalk';
-import { randomHex } from '../utils/randomHex';
+import { RgbColor, textToRgb } from '../utils/textToRgb';
 
 interface SyncWatcherOptions {
     name: string;
@@ -12,7 +12,7 @@ interface SyncWatcherOptions {
 
 export class SyncWatcher extends Set<string> {
     private handler?: ReturnType<typeof setTimeout>;
-    private readonly color: string = randomHex();
+    private readonly color: RgbColor;
 
     constructor(
         private readonly source: string,
@@ -20,6 +20,7 @@ export class SyncWatcher extends Set<string> {
         private readonly options?: SyncWatcherOptions,
     ) {
         super();
+        this.color = textToRgb(this.options?.name);
 
         if (realpathSync(source) === realpathSync(target)) {
             return Object.assign(this, {
@@ -57,7 +58,7 @@ export class SyncWatcher extends Set<string> {
     }
 
     private log(...message: unknown[]): void {
-        console.log(chalk.hex(this.color)`${this.options?.name}`, ...message);
+        console.log(chalk.rgb(...this.color)`${this.options?.name}`, ...message);
     }
 
     private tick(): void {
