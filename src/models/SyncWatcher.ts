@@ -1,4 +1,4 @@
-import { cpSync, rmSync, watch, existsSync, realpathSync, readdirSync } from 'node:fs';
+import { cpSync, rmSync, watch, existsSync, realpathSync, readdirSync, FSWatcher } from 'node:fs';
 import { resolve } from 'node:path';
 import picomatch from 'picomatch';
 import chalk from 'chalk';
@@ -13,16 +13,18 @@ interface SyncWatcherOptions {
 export class SyncWatcher extends Set<string> {
     private handler?: ReturnType<typeof setTimeout>;
     private readonly color: RgbColor;
+    public readonly canProcess: boolean;
 
     constructor(
-        private readonly source: string,
-        private readonly target: string,
+        public readonly source: string,
+        public readonly target: string,
         private readonly options?: SyncWatcherOptions,
     ) {
         super();
         this.color = textToRgb(this.options?.name);
 
-        if (realpathSync(source) === realpathSync(target)) {
+        this.canProcess = realpathSync(source) !== realpathSync(target);
+        if (this.canProcess) {
             return Object.assign(this, {
                 watch: () => this.log('[WATCH]', 'Source and destination path are equal'),
                 copy: () => this.log('[COPY]', 'Source and destination path are equal'),
@@ -42,8 +44,8 @@ export class SyncWatcher extends Set<string> {
         this.handler = undefined;
     }
 
-    public watch(): void {
-        watch(this.source, { recursive: true }, (event, filename) => {
+    public watch(): FSWatcher {
+        return watch(this.source, { recursive: true }, (event, filename) => {
             this.add(filename);
             this.tick();
         });

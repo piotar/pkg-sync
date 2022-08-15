@@ -4,19 +4,24 @@ import prompts from 'prompts';
 import { getPackageJson } from '../utils/getPackageJson';
 import { getRelatedDependencies } from '../utils/getRelatedDependencies';
 import { getApplicationData } from '../utils/getApplicationData';
-import { excludeRules, includeDirectoriesRules } from '../common/watchRules';
+import { excludeRules, includeDirectoriesRules, matcherOptions } from '../common/watchRules';
 import { SyncWatcher } from '../models/SyncWatcher';
 import { ApplicationError } from '../models/ApplicationError';
 import { applyGlobToDirs } from '../utils/applyGlobToDir';
 import depthOption from './options/depth';
 import interactiveOption from './options/interactive';
 import pathArgument from './arguments/path';
+import { getLockData } from '../utils/getLockData';
+import { SESSION_ID } from '../common/appConfig';
 
 interface SyncCommandOptions {
     watch: boolean;
     depth: number;
     interactive: boolean;
+    restore: boolean;
 }
+
+const appData = getApplicationData();
 
 export default new Command('sync')
     .description('Sync and watch packages in project')
@@ -24,6 +29,12 @@ export default new Command('sync')
     .addOption(new Option('--no-watch', 'Disable watch files after sync'))
     .addOption(interactiveOption)
     .addOption(depthOption)
+    .addOption(
+        new Option('--restore', 'Restore original files after exit')
+            .conflicts('watch')
+            .default(true)
+            .hideHelp(appData.config.restore),
+    )
     .action(async (path: string, options: SyncCommandOptions) => {
         const packageJson = getPackageJson(path);
         let relatedPackages = getRelatedDependencies(packageJson, options.depth);
@@ -48,16 +59,12 @@ export default new Command('sync')
             throw new ApplicationError('No related dependencies found');
         }
 
+        console.log('Session id', SESSION_ID);
         console.log('Dependencies to synchronization', ...relatedPackages.map(({ name }) => name));
 
-        const matcherOptions: picomatch.PicomatchOptions = {
-            nocase: true,
-            dot: true,
-        };
         const excludeMatcher = picomatch(excludeRules, matcherOptions);
         const includeMatcher = picomatch(applyGlobToDirs(includeDirectoriesRules), matcherOptions);
 
-        const appData = getApplicationData();
         const packages = relatedPackages.map((dependencyPackage) => {
             const packageRecord = appData.packages[dependencyPackage.name];
 
@@ -70,8 +77,18 @@ export default new Command('sync')
             });
         });
 
+        if (appData.config.restore) {
+            getLockData(packageJson.$dirname).$archive(packages.filter((p) => p.canProcess).map((p) => p.target));
+        }
+
         packages.forEach((p) => p.copy());
+
         if (options.watch) {
             packages.forEach((p) => p.watch());
+            if (appData.config.restore && options.restore && options.watch) {
+                process.on('exit', () => {
+                    getLockData(packageJson.$dirname).$restore();
+                });
+            }
         }
     });

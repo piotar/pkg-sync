@@ -1,3 +1,10 @@
+import { PicomatchOptions } from 'picomatch';
+
+export const matcherOptions: PicomatchOptions = {
+    nocase: true,
+    dot: true,
+};
+
 export const excludeRules = [
     '.npmignore',
     '.gitignore',

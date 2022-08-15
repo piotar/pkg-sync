@@ -8,21 +8,42 @@ export interface ApplicationDataPackage {
 
 export interface ApplicationData {
     version: number;
-    updateCheck: number;
+    updateCheck: ReturnType<typeof Date.now>;
     packages: Record<string, ApplicationDataPackage>;
+    config: {
+        restore: boolean;
+        depth: number;
+    };
 }
 
-const defaultApplicationData: ApplicationData = {
+export const defaultJson: ApplicationData = {
     version: 1,
     updateCheck: Date.now(),
     packages: {},
+    config: {
+        restore: true,
+        depth: 2,
+    },
 };
 
-let fileHandler: JsonFile<ApplicationData> & ApplicationData;
+function transform(data: Partial<ApplicationData>): ApplicationData {
+    return {
+        ...defaultJson,
+        ...data,
+        config: {
+            ...defaultJson.config,
+            ...data.config,
+        },
+    };
+}
 
-export function getApplicationData(): JsonFile<ApplicationData> & ApplicationData {
+export type ApplicationDataFile = JsonFile<ApplicationData> & ApplicationData;
+
+let fileHandler: ApplicationDataFile;
+
+export function getApplicationData(): ApplicationDataFile {
     if (!fileHandler) {
-        fileHandler = JsonFile.load<ApplicationData>(PROJECT_DATA_FILE_PATH, defaultApplicationData);
+        fileHandler = JsonFile.load<ApplicationData>(PROJECT_DATA_FILE_PATH, { defaultJson, transform });
     }
     return fileHandler;
 }
