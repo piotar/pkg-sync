@@ -74,7 +74,7 @@ export class SyncWatcher extends Set<string> {
             if (existsSync(a)) {
                 cpSync(a, b, { force: true, recursive: true });
             } else {
-                rmSync(b, { force: true });
+                rmSync(b, { force: true, recursive: true });
             }
             this.log('[SYNC]', a, '->', b);
         });
