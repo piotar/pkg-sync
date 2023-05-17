@@ -56,9 +56,11 @@ That's it... Points 1-2 are only necessary for the first run.
 
 ## add [options] [path]
 
+```console
+Usage: pkg-sync add [options] [path]
+
 Add package to sync
 
-```
 Arguments:
   path                  Path to package (path not set will be set to closest package.json)
 
@@ -66,40 +68,99 @@ Options:
   -n, --name <package>  Package name (override name from package.json)
   -f, --force           Override package
   -d, --dir [dirs...]   Directory to watch (override default values)
+  -h, --help            display help for command
+
 ```
 
-## remove &lt;package&gt;
+## remove|rm [options] [packages...]
+
+```console
+Usage: pkg-sync remove|rm [options] [packages...]
 
 Remove package from sync
 
-```
 Arguments:
-  package     Package name (name set as "." will be set from closest package.json)
+  packages           Package name (name set as "." will be set from closest package.json)
+
+Options:
+  -i, --interactive  Interactive mode (default: false)
+  -a, --all          Remove all stored packages (default: false)
+  -h, --help         display help for command
+
 ```
 
 ## list|ls
 
+```console
+Usage: pkg-sync list|ls [options]
+
 Show all stored packages
 
+Options:
+  -h, --help  display help for command
 
-## validate [path]
+```
+
+## validate [options] [path]
+
+```console
+Usage: pkg-sync validate [options] [path]
 
 Show coverage packages from project
 
-```
 Arguments:
-  path        Path to project (path not set will be set to closest package.json)
-```
+  path                  Path to package (path not set will be set to closest package.json)
 
+Options:
+  -d, --depth [number]  Deep search of dependencies (default: 2, preset: 2)
+  -h, --help            display help for command
+
+```
 
 ## sync [options] [path]
 
+```console
+Usage: pkg-sync sync [options] [path]
+
 Sync and watch packages in project
 
-```
 Arguments:
-  path        Path to project (path not set will be set to closest package.json)
+  path                  Path to package (path not set will be set to closest package.json)
 
 Options:
-  --no-watch  Disable watch files after sync
+  --no-watch            Disable watch files after sync
+  -i, --interactive     Interactive mode (default: false)
+  -d, --depth [number]  Deep search of dependencies (default: 2, preset: 2)
+  -h, --help            display help for command
+
+```
+
+## update-check
+
+```console
+Usage: pkg-sync update-check [options]
+
+Check version of 'pkg-sync'
+
+Options:
+  -h, --help  display help for command
+
+```
+
+## config
+
+```console
+Usage: pkg-sync config [options] [command]
+
+Config
+
+Options:
+  -h, --help         display help for command
+
+Commands:
+  set <key> <value>  Set config
+  get [key]          Get config
+  restore            Restore config to default
+  help [command]     display help for command
+
 ```

@@ -4,7 +4,7 @@ import { JsonFile } from '../models/JsonFile';
 import { findClosestPath } from './findClosestPath';
 import { getPackageDependencies } from './getPackageDependencies';
 
-export interface PackageJson {
+export interface PackageJson extends Record<string | symbol, unknown> {
     name: string;
     version: string;
     description?: string;
