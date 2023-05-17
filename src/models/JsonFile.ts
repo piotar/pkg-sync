@@ -1,22 +1,31 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
+export interface JsonFileOptions<T> {
+    defaultJson?: T;
+    transform?(data: Partial<T>): T;
+}
+
 export class JsonFile<T> {
     public readonly $fileExists: boolean = false;
-    private readonly $data?: T;
+    public readonly $data?: T;
 
-    private constructor(private path: string = '', defaultJson?: T) {
+    private constructor(private $path: string = '', private $options?: JsonFileOptions<T>) {
         try {
-            this.$data = JSON.parse(readFileSync(this.path, 'utf8'));
+            const data = JSON.parse(readFileSync(this.$path, 'utf8'));
+            this.$data = this.$options?.transform?.(data) ?? data;
             this.$fileExists = true;
         } catch (error) {
-            this.$data = defaultJson;
+            this.$data = $options?.defaultJson;
         }
     }
 
-    static load<T>(path: string, defaultJson?: T): JsonFile<T> & T {
-        return new Proxy(new JsonFile<T>(path, defaultJson), {
-            get(target, name) {
+    static load<T extends Record<string | symbol, unknown> | undefined>(
+        path: string,
+        options?: JsonFileOptions<T>,
+    ): JsonFile<T> & T {
+        return new Proxy(new JsonFile<T>(path, options), {
+            get(target, name: keyof JsonFile<T>) {
                 return name in target ? target[name] : target.$data?.[name];
             },
             set(target, name, value) {
@@ -32,10 +41,10 @@ export class JsonFile<T> {
         if (!existsSync(baseName)) {
             mkdirSync(baseName, { recursive: true });
         }
-        writeFileSync(this.path, JSON.stringify(this.$data));
+        writeFileSync(this.$path, JSON.stringify(this.$data));
     }
 
     public get $dirname(): string {
-        return dirname(this.path);
+        return dirname(this.$path);
     }
 }

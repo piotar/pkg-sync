@@ -32,7 +32,6 @@ export default new Command('remove')
         if (options.interactive && appPackages.length) {
             selectedPackages = (
                 await prompts({
-                    instructions: false,
                     type: 'multiselect',
                     name: 'packages',
                     message: 'Pick packages to remove',

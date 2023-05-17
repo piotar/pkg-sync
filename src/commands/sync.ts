@@ -4,7 +4,7 @@ import prompts from 'prompts';
 import { getPackageJson } from '../utils/getPackageJson';
 import { getRelatedDependencies } from '../utils/getRelatedDependencies';
 import { getApplicationData } from '../utils/getApplicationData';
-import { excludeRules, includeDirectoriesRules } from '../common/watchRules';
+import { excludeRules, includeDirectoriesRules, matcherOptions } from '../common/watchRules';
 import { SyncWatcher } from '../models/SyncWatcher';
 import { ApplicationError } from '../models/ApplicationError';
 import { applyGlobToDirs } from '../utils/applyGlobToDir';
@@ -17,6 +17,8 @@ interface SyncCommandOptions {
     depth: number;
     interactive: boolean;
 }
+
+const appData = getApplicationData();
 
 export default new Command('sync')
     .description('Sync and watch packages in project')
@@ -31,7 +33,6 @@ export default new Command('sync')
         if (options.interactive && relatedPackages.length) {
             relatedPackages = (
                 await prompts({
-                    instructions: false,
                     type: 'multiselect',
                     name: 'packages',
                     message: 'Pick packages to sync',
@@ -50,14 +51,9 @@ export default new Command('sync')
 
         console.log('Dependencies to synchronization', ...relatedPackages.map(({ name }) => name));
 
-        const matcherOptions: picomatch.PicomatchOptions = {
-            nocase: true,
-            dot: true,
-        };
         const excludeMatcher = picomatch(excludeRules, matcherOptions);
         const includeMatcher = picomatch(applyGlobToDirs(includeDirectoriesRules), matcherOptions);
 
-        const appData = getApplicationData();
         const packages = relatedPackages.map((dependencyPackage) => {
             const packageRecord = appData.packages[dependencyPackage.name];
 
@@ -71,6 +67,7 @@ export default new Command('sync')
         });
 
         packages.forEach((p) => p.copy());
+
         if (options.watch) {
             packages.forEach((p) => p.watch());
         }
