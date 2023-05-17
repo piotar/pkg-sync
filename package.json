@@ -40,7 +40,7 @@
         "prepublishOnly": "npm run build"
     },
     "dependencies": {
-        "chalk": "4.1.2",
+        "chalk": "5.2.0",
         "commander": "10.0.1",
         "picomatch": "2.3.1",
         "prompts": "2.4.2"
