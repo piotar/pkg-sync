@@ -24,7 +24,7 @@ export class SyncWatcher extends Set<string> {
         this.color = textToRgb(this.options?.name);
 
         this.canProcess = realpathSync(source) !== realpathSync(target);
-        if (this.canProcess) {
+        if (!this.canProcess) {
             return Object.assign(this, {
                 watch: () => this.log('[WATCH]', 'Source and destination path are equal'),
                 copy: () => this.log('[COPY]', 'Source and destination path are equal'),
