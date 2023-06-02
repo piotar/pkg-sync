@@ -1,4 +1,4 @@
-import { Command, Option } from 'commander';
+import { Argument, Command, Option } from 'commander';
 import picomatch from 'picomatch';
 import prompts from 'prompts';
 import { getPackageJson } from '../utils/getPackageJson';
@@ -23,23 +23,34 @@ const appData = getApplicationData();
 export default new Command('sync')
     .description('Sync and watch packages in project')
     .addArgument(pathArgument)
+    .addArgument(
+        new Argument('[packages...]', 'Package name to sync').argParser<string[]>((name, argument = []) => [
+            ...argument,
+            name,
+        ]),
+    )
     .addOption(new Option('--no-watch', 'Disable watch files after sync'))
     .addOption(interactiveOption)
     .addOption(depthOption)
-    .action(async (path: string, options: SyncCommandOptions) => {
+    .action(async (path: string, packagesToSync: string[], options: SyncCommandOptions) => {
         const packageJson = getPackageJson(path);
-        let relatedPackages = getRelatedDependencies(packageJson, options.depth);
+        const relatedDependencies = getRelatedDependencies(packageJson, options.depth);
 
-        if (options.interactive && relatedPackages.length) {
+        let relatedPackages =
+            packagesToSync?.length > 0
+                ? relatedDependencies.filter((p) => packagesToSync.includes(p.name))
+                : relatedDependencies;
+
+        if (options.interactive && relatedDependencies.length) {
             relatedPackages = (
                 await prompts({
                     type: 'multiselect',
                     name: 'packages',
                     message: 'Pick packages to sync',
-                    choices: relatedPackages.map((relatedPackage) => ({
+                    choices: relatedDependencies.map((relatedPackage) => ({
                         value: relatedPackage,
                         title: relatedPackage.name,
-                        selected: true,
+                        selected: relatedPackages.some((p) => p === relatedPackage),
                     })),
                 })
             ).packages;

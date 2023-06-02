@@ -117,15 +117,16 @@ Options:
 
 ```
 
-## sync [options] [path]
+## sync [options] [path] [packages...]
 
 ```console
-Usage: pkg-sync sync [options] [path]
+Usage: pkg-sync sync [options] [path] [packages...]
 
 Sync and watch packages in project
 
 Arguments:
   path                  Path to package (path not set will be set to closest package.json)
+  packages              Package name to sync
 
 Options:
   --no-watch            Disable watch files after sync
