@@ -3,7 +3,6 @@
 [![GitHub package.json version](https://img.shields.io/github/package-json/v/piotar/pkg-sync)](https://github.com/piotar/pkg-sync)
 [![npm (scoped)](https://img.shields.io/npm/v/@piotar/pkg-sync)](https://www.npmjs.com/package/@piotar/pkg-sync)
 ![node-current (scoped)](https://img.shields.io/node/v/@piotar/pkg-sync)
-![Snyk Vulnerabilities for npm scoped package](https://img.shields.io/snyk/vulnerabilities/npm/@piotar/pkg-sync)
 ![NPM](https://img.shields.io/npm/l/@piotar/pkg-sync)
 
 A utility for synchronization multiple packages, without any symlinks and any changes in source projects(package.json, etc.).
