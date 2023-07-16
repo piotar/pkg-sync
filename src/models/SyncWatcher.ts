@@ -46,8 +46,10 @@ export class SyncWatcher extends Set<string> {
 
     public watch(): FSWatcher {
         return watch(this.source, { recursive: true }, (event, filename) => {
-            this.add(filename);
-            this.tick();
+            if (filename) {
+                this.add(filename);
+                this.tick();
+            }
         });
     }
 
