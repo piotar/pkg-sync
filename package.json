@@ -48,7 +48,7 @@
     "devDependencies": {
         "@types/node": "20.8.3",
         "@types/picomatch": "2.3.0",
-        "@types/prompts": "2.4.5",
+        "@types/prompts": "2.4.7",
         "husky": "8.0.3",
         "lint-staged": "14.0.1",
         "prettier": "3.0.3",
