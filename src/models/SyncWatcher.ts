@@ -1,5 +1,6 @@
-import { cpSync, rmSync, watch, existsSync, realpathSync, readdirSync, FSWatcher } from 'node:fs';
+import { cpSync, rmSync, existsSync, realpathSync, readdirSync, FSWatcher } from 'node:fs';
 import { resolve } from 'node:path';
+import { watch } from 'chokidar';
 import picomatch from 'picomatch';
 import chalk from 'chalk';
 import { RgbColor, textToRgb } from '../utils/textToRgb';
@@ -45,7 +46,7 @@ export class SyncWatcher extends Set<string> {
     }
 
     public watch(): FSWatcher {
-        return watch(this.source, { recursive: true }, (event, filename) => {
+        return watch(this.source).on('all', (event, filename) => {
             if (filename) {
                 this.add(filename);
                 this.tick();
