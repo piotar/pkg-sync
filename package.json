@@ -47,7 +47,7 @@
         "prompts": "2.4.2"
     },
     "devDependencies": {
-        "@types/node": "20.9.3",
+        "@types/node": "20.9.4",
         "@types/picomatch": "2.3.3",
         "@types/prompts": "2.4.9",
         "husky": "8.0.3",
