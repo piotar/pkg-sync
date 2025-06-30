@@ -12,8 +12,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-          registry-url: https://registry.npmjs.org/
       - run: bun install --frozen-lockfile
       - run: bun publish --access public
         env:
-          BUN_AUTH_TOKEN: ${{secrets.npm_token}}
+          NPM_CONFIG_TOKEN: ${{secrets.npm_token}}
