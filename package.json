@@ -37,7 +37,7 @@
         "prebuild": "rimraf dist",
         "build": "tsc",
         "type-check": "tsc --noEmit",
-        "prepare": "husky",
+        "prepare": "bunx husky",
         "prepublishOnly": "bun run build"
     },
     "dependencies": {
