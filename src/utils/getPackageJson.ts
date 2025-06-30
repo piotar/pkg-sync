@@ -1,8 +1,8 @@
 import { existsSync, realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { JsonFile } from '../models/JsonFile';
-import { findClosestPath } from './findClosestPath';
-import { getPackageDependencies } from './getPackageDependencies';
+import { JsonFile } from '../models/JsonFile.js';
+import { findClosestPath } from './findClosestPath.js';
+import { getPackageDependencies } from './getPackageDependencies.js';
 
 export interface PackageJson extends Record<string | symbol, unknown> {
     name: string;

@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { ApplicationError } from '../models/ApplicationError';
+import { ApplicationError } from '../models/ApplicationError.js';
 
 export function findClosestPath(name: string, path = resolve()): string {
     const packagePath = resolve(path, name);

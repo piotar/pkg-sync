@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
         "target": "ESNext",
-        "moduleResolution": "Node",
-        "module": "CommonJS",
+        "moduleResolution": "nodenext",
+        "module": "nodenext",
         "rootDir": "./src",
         "outDir": "dist",
         "strict": true,

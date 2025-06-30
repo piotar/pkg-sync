@@ -3,19 +3,19 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Command, Help } from 'commander';
-import { PROJECT_NAME } from './common/appConfig';
-import addCommand from './commands/add';
-import removeCommand from './commands/remove';
-import listCommand from './commands/list';
-import validateCommand from './commands/validate';
-import syncCommand from './commands/sync';
-import updateCheckCommand from './commands/updateCheck';
-import configCommand from './commands/config';
-import { getPackageJson } from './utils/getPackageJson';
-import { ApplicationError } from './models/ApplicationError';
-import { checkUpdates } from './utils/checkUpdates';
+import { PROJECT_NAME } from './common/appConfig.js';
+import addCommand from './commands/add.js';
+import removeCommand from './commands/remove.js';
+import listCommand from './commands/list.js';
+import validateCommand from './commands/validate.js';
+import syncCommand from './commands/sync.js';
+import updateCheckCommand from './commands/updateCheck.js';
+import configCommand from './commands/config.js';
+import { getPackageJson } from './utils/getPackageJson.js';
+import { ApplicationError } from './models/ApplicationError.js';
+import { checkUpdates } from './utils/checkUpdates.js';
 
-const packageJson = getPackageJson(__dirname);
+const packageJson = getPackageJson(import.meta.dirname);
 
 if (!packageJson.$fileExists) {
     throw new Error('Missing package.json');

@@ -2,7 +2,7 @@ import { cpSync, rmSync, existsSync, watch, realpathSync, readdirSync, FSWatcher
 import { resolve } from 'node:path';
 import picomatch from 'picomatch';
 import chalk from 'chalk';
-import { RgbColor, textToRgb } from '../utils/textToRgb';
+import { RgbColor, textToRgb } from '../utils/textToRgb.js';
 
 interface SyncWatcherOptions {
     name: string;
@@ -62,7 +62,7 @@ export class SyncWatcher extends Set<string> {
     }
 
     private log(...message: unknown[]): void {
-        console.log(chalk.rgb(...this.color)`${this.options?.name}`, ...message);
+        console.log(chalk.rgb(...this.color)(this.options?.name), ...message);
     }
 
     private tick(): void {

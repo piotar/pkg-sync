@@ -1,5 +1,5 @@
-import { JsonFile } from '../models/JsonFile';
-import { PROJECT_DATA_FILE_PATH } from '../common/appConfig';
+import { JsonFile } from '../models/JsonFile.js';
+import { PROJECT_DATA_FILE_PATH } from '../common/appConfig.js';
 
 export interface ApplicationDataPackage {
     path: string;

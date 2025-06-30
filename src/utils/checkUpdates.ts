@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { request } from 'node:https';
-import { getApplicationData } from './getApplicationData';
-import { PackageJson } from './getPackageJson';
+import { getApplicationData } from './getApplicationData.js';
+import { PackageJson } from './getPackageJson.js';
 
 export function fetch(url: string | URL): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -28,8 +28,8 @@ export async function getLatestVersion(packageJson: PackageJson): Promise<string
 
 export function updateConsoleMessage(packageJson: PackageJson, latest: string): void {
     console.log();
-    console.log(chalk.yellowBright`Update available! ${packageJson.version} -> ${latest}`);
-    console.log(chalk.yellowBright`Run "npm install -g ${packageJson.name}" to update.`);
+    console.log(chalk.yellowBright(`Update available! ${packageJson.version} -> ${latest}`));
+    console.log(chalk.yellowBright(`Run "npm install -g ${packageJson.name}" to update.`));
     console.log();
 }
 

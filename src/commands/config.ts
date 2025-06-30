@@ -1,5 +1,5 @@
 import { Argument, Command } from 'commander';
-import { ApplicationConfig, defaultJson, getApplicationData } from '../utils/getApplicationData';
+import { ApplicationConfig, defaultJson, getApplicationData } from '../utils/getApplicationData.js';
 
 const configCommand = new Command('config').description('Config');
 

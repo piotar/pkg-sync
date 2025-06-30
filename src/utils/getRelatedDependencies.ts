@@ -1,6 +1,6 @@
-import { getApplicationData } from './getApplicationData';
-import { getDependencies } from './getDependencies';
-import { PackageJsonFile } from './getPackageJson';
+import { getApplicationData } from './getApplicationData.js';
+import { getDependencies } from './getDependencies.js';
+import { PackageJsonFile } from './getPackageJson.js';
 
 export function getRelatedDependencies(packageJson: PackageJsonFile, depth: number): PackageJsonFile[] {
     const { packages } = getDependencies(packageJson, depth);

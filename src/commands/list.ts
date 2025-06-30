@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 import { Command } from 'commander';
-import { PROJECT_DATA_FILE_PATH } from '../common/appConfig';
-import { includeDirectoriesRules } from '../common/watchRules';
-import { getApplicationData } from '../utils/getApplicationData';
+import { PROJECT_DATA_FILE_PATH } from '../common/appConfig.js';
+import { includeDirectoriesRules } from '../common/watchRules.js';
+import { getApplicationData } from '../utils/getApplicationData.js';
 
 export default new Command('list')
     .alias('ls')
@@ -16,7 +16,7 @@ export default new Command('list')
             Object.keys(appData.packages).forEach((packageName) => {
                 const { path, dir } = appData.packages[packageName];
                 console.log();
-                console.log(chalk.green`${packageName}`);
+                console.log(chalk.green(packageName));
                 console.log('Path:', path);
                 if (dir) {
                     console.log('Custom watch directories:', dir);

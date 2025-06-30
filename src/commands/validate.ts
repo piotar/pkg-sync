@@ -1,9 +1,9 @@
 import { Command } from 'commander';
-import { getPackageJson } from '../utils/getPackageJson';
-import { getRelatedDependencies } from '../utils/getRelatedDependencies';
-import { ApplicationError } from '../models/ApplicationError';
-import depthOption from './options/depth';
-import pathArgument from './arguments/path';
+import { getPackageJson } from '../utils/getPackageJson.js';
+import { getRelatedDependencies } from '../utils/getRelatedDependencies.js';
+import { ApplicationError } from '../models/ApplicationError.js';
+import depthOption from './options/depth.js';
+import pathArgument from './arguments/path.js';
 
 interface ValidateCommandOptions {
     depth: number;

@@ -1,16 +1,16 @@
 import { Argument, Command, Option } from 'commander';
 import picomatch from 'picomatch';
 import prompts from 'prompts';
-import { getPackageJson } from '../utils/getPackageJson';
-import { getRelatedDependencies } from '../utils/getRelatedDependencies';
-import { getApplicationData } from '../utils/getApplicationData';
-import { excludeRules, includeDirectoriesRules, matcherOptions } from '../common/watchRules';
-import { SyncWatcher } from '../models/SyncWatcher';
-import { ApplicationError } from '../models/ApplicationError';
-import { applyGlobToDirs } from '../utils/applyGlobToDir';
-import depthOption from './options/depth';
-import interactiveOption from './options/interactive';
-import pathArgument from './arguments/path';
+import { getPackageJson } from '../utils/getPackageJson.js';
+import { getRelatedDependencies } from '../utils/getRelatedDependencies.js';
+import { getApplicationData } from '../utils/getApplicationData.js';
+import { excludeRules, includeDirectoriesRules, matcherOptions } from '../common/watchRules.js';
+import { SyncWatcher } from '../models/SyncWatcher.js';
+import { ApplicationError } from '../models/ApplicationError.js';
+import { applyGlobToDirs } from '../utils/applyGlobToDir.js';
+import depthOption from './options/depth.js';
+import interactiveOption from './options/interactive.js';
+import pathArgument from './arguments/path.js';
 
 interface SyncCommandOptions {
     watch: boolean;

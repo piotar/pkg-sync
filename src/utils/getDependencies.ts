@@ -1,5 +1,5 @@
-import { findPackage } from './findPackage';
-import { PackageJson, PackageJsonFile } from './getPackageJson';
+import { findPackage } from './findPackage.js';
+import { PackageJson, PackageJsonFile } from './getPackageJson.js';
 
 export interface PackageDependency {
     dependency: PackageJsonFile;

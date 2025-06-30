@@ -1,6 +1,6 @@
 import { dirname, resolve } from 'node:path';
-import { findClosestPath } from './findClosestPath';
-import { getPackageJson, PackageJsonFile } from './getPackageJson';
+import { findClosestPath } from './findClosestPath.js';
+import { getPackageJson, PackageJsonFile } from './getPackageJson.js';
 
 export function findPackage(name: string, path: string): PackageJsonFile {
     const packageJson = getPackageJson(resolve(path, 'node_modules', name), true);

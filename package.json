@@ -17,11 +17,12 @@
     ],
     "author": "Piotr Tarasiuk",
     "license": "MIT",
+    "type": "module",
     "bugs": {
         "url": "https://github.com/piotar/pkg-sync/issues"
     },
     "homepage": "https://github.com/piotar/pkg-sync",
-    "main": "./dist/cli.js",
+    "module": "./dist/cli.js",
     "bin": {
         "pkg-sync": "./dist/cli.js"
     },
@@ -29,31 +30,31 @@
         "dist"
     ],
     "engines": {
-        "node": ">=16.7.0"
+        "node": ">=22.0.0"
     },
     "scripts": {
         "dev": "tsc --watch",
         "prebuild": "rimraf dist",
         "build": "tsc",
         "type-check": "tsc --noEmit",
-        "prepare": "husky install",
-        "prepublishOnly": "npm run build"
+        "prepare": "husky",
+        "prepublishOnly": "bun run build"
     },
     "dependencies": {
-        "chalk": "4.1.2",
-        "commander": "12.1.0",
+        "chalk": "5.4.1",
+        "commander": "14.0.0",
         "picomatch": "4.0.2",
         "prompts": "2.4.2"
     },
     "devDependencies": {
-        "@types/node": "20.16.2",
-        "@types/picomatch": "3.0.1",
+        "@types/node": "24.0.7",
+        "@types/picomatch": "4.0.0",
         "@types/prompts": "2.4.9",
-        "husky": "9.1.5",
-        "lint-staged": "15.2.9",
-        "prettier": "3.3.3",
+        "husky": "9.1.7",
+        "lint-staged": "16.1.2",
+        "prettier": "3.6.2",
         "rimraf": "6.0.1",
-        "typescript": "5.5.4"
+        "typescript": "5.8.3"
     },
     "lint-staged": {
         "**/*.{js,ts,json}": "prettier --write"

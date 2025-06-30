@@ -1,8 +1,8 @@
 import { Command } from 'commander';
-import { getApplicationData } from '../utils/getApplicationData';
-import { getPackageJson } from '../utils/getPackageJson';
-import { ApplicationError } from '../models/ApplicationError';
-import pathArgument from './arguments/path';
+import { getApplicationData } from '../utils/getApplicationData.js';
+import { getPackageJson } from '../utils/getPackageJson.js';
+import { ApplicationError } from '../models/ApplicationError.js';
+import pathArgument from './arguments/path.js';
 
 interface AddCommandOptions {
     name?: string;

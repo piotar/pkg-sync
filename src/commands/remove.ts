@@ -1,9 +1,9 @@
 import { Argument, Command, Option } from 'commander';
 import prompts from 'prompts';
-import { getPackageJson } from '../utils/getPackageJson';
-import { getApplicationData } from '../utils/getApplicationData';
-import { ApplicationError } from '../models/ApplicationError';
-import interactiveOption from './options/interactive';
+import { getPackageJson } from '../utils/getPackageJson.js';
+import { getApplicationData } from '../utils/getApplicationData.js';
+import { ApplicationError } from '../models/ApplicationError.js';
+import interactiveOption from './options/interactive.js';
 
 interface RemoveCommandOptions {
     interactive: boolean;

@@ -1,5 +1,5 @@
 import { Option } from 'commander';
-import { getApplicationData } from '../../utils/getApplicationData';
+import { getApplicationData } from '../../utils/getApplicationData.js';
 
 const appData = getApplicationData();
 const { depth } = appData.config;
