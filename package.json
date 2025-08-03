@@ -54,7 +54,7 @@
         "lint-staged": "16.1.2",
         "prettier": "3.6.2",
         "rimraf": "6.0.1",
-        "typescript": "5.8.3"
+        "typescript": "5.9.2"
     },
     "lint-staged": {
         "**/*.{js,ts,json}": "prettier --write"
