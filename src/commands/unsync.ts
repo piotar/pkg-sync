@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { defineCommand } from "citty";
 import * as p from "@clack/prompts";
-import { getApplicationData } from "../utils/getApplicationData";
+import { getApplicationData, type SyncSession } from "../utils/getApplicationData";
 import { getPackageJson } from "../utils/getPackageJson";
 import { findPackage } from "../utils/findPackage";
 import { ApplicationError } from "../models/ApplicationError";
@@ -46,12 +46,9 @@ export const unsyncCommand = defineCommand({
     const reinstalled = args.reinstall ? reinstall(target) : false;
 
     // Drop the unsynced packages from the session, removing the target entirely when none remain.
-    const remaining = session.packages.filter((name) => !selected.includes(name));
-    if (remaining.length) {
-      appData.targets[target] = { ...session, packages: remaining };
-    } else {
-      delete appData.targets[target];
-    }
+    const next = nextSession(session, selected);
+    if (next) appData.targets[target] = next;
+    else delete appData.targets[target];
     appData.$save();
 
     if (isJsonMode()) {
@@ -64,6 +61,12 @@ export const unsyncCommand = defineCommand({
     else p.log.info("Skipped reinstall; run your package manager's install to restore.");
   },
 });
+
+/** Drop `selected` from the session; returns the new session, or null when nothing is left. */
+export function nextSession(session: SyncSession, selected: string[]): SyncSession | null {
+  const remaining = session.packages.filter((name) => !selected.includes(name));
+  return remaining.length ? { ...session, packages: remaining } : null;
+}
 
 /** Remove an installed package's directory from the target. Returns whether anything was deleted. */
 function deletePackage(name: string, target: string): boolean {
@@ -82,7 +85,7 @@ function reinstall(target: string): boolean {
 }
 
 /** Pick a package manager from the lockfile present in the target, defaulting to npm. */
-function detectPackageManager(target: string): string {
+export function detectPackageManager(target: string): string {
   if (existsSync(join(target, "bun.lockb")) || existsSync(join(target, "bun.lock"))) return "bun";
   if (existsSync(join(target, "pnpm-lock.yaml"))) return "pnpm";
   if (existsSync(join(target, "yarn.lock"))) return "yarn";
