@@ -1,0 +1,3 @@
+[install]
+# Pin dependencies to exact versions on `bun add` (no `^` ranges).
+exact = true
