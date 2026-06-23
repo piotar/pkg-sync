@@ -37,7 +37,7 @@ jobs:
       # Node provides the npm CLI used to publish via OIDC.
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           registry-url: https://registry.npmjs.org
 
       # Trusted Publishing landed in npm 11.5.1; Node 22 ships an older npm, so upgrade.
