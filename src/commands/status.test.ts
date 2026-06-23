@@ -39,4 +39,24 @@ describe("statusResult", () => {
     const result = statusResult(data, "/two");
     expect(result.map((entry) => entry.path)).toEqual(["/two"]);
   });
+
+  test("returns an empty list when nothing is synced", () => {
+    expect(statusResult(appData({}))).toEqual([]);
+  });
+
+  test("reports several targets, flagging the stale one", async () => {
+    const live = await mkdtemp(join(tmpdir(), "pkg-sync-status-"));
+    tmpDirs.push(live);
+    mkdirSync(join(live, "node_modules"), { recursive: true });
+    const result = statusResult(
+      appData({
+        [live]: { packages: ["a"], syncedAt: 1 },
+        "/gone": { packages: ["b"], syncedAt: 2 },
+      }),
+    );
+    expect(result).toEqual([
+      { path: live, packages: ["a"], syncedAt: 1, stale: false },
+      { path: "/gone", packages: ["b"], syncedAt: 2, stale: true },
+    ]);
+  });
 });
