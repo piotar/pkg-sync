@@ -57,14 +57,6 @@ We have a main project (`App`) and 2 dependencies (`Ui` and `Store`) in differen
 
 That's it. Step 1 is only needed the first time; afterwards a single `pkg-sync sync .` is enough.
 
-### Useful commands
-
-- `pkg-sync list` — show every registered package, the data file path, and the default watch directories.
-- `pkg-sync validate .` — preview which registered packages would be synced for a project, without copying anything.
-- `pkg-sync sync . --no-watch` — copy once and exit, instead of watching.
-- `pkg-sync sync . -i` — pick the packages to sync interactively.
-- `pkg-sync remove <name>` / `pkg-sync remove -i` — unregister packages.
-
 ### Configuration
 
 Settings live in the same global registry and are managed with `pkg-sync config`:
@@ -79,110 +71,49 @@ To watch non-default directories for a specific package, pass them when register
 
 # Commands
 
-## add
+Run `pkg-sync <command> --help` for the full, up-to-date options of any command.
 
-```console
-Add package to sync (pkg-sync add v2.0.3)
+### `add [path]`
 
-USAGE pkg-sync add [OPTIONS] [PATH]
+Register a package so it can be synced. `path` defaults to the closest `package.json`.
 
-ARGUMENTS
+- `-n, --name <name>` — override the package name (instead of the one in `package.json`)
+- `-f, --force` — overwrite an existing registration
+- `-d, --dir <dirs>` — comma-separated directories to watch, overriding the defaults
 
-  PATH    Path to package (path not set will be set to closest package.json)
+### `remove [packages...]` (alias `rm`)
 
-OPTIONS
+Unregister packages. Use `.` for the name in the closest `package.json`.
 
-  -n, --name=<name>    Package name (override name from package.json)           
-        -f, --force    Override package (Default: false)              
-    -d, --dir=<dir>    Directories to watch, comma-separated (override defaults)
+- `-i, --interactive` — pick packages to remove from a list
+- `-a, --all` — remove every registered package
 
-```
+### `list` (alias `ls`)
 
-## remove
+Show the data file path, the default watch directories, and every registered package.
 
-```console
-Remove package from sync (pkg-sync remove v2.0.3)
+### `validate [path]`
 
-USAGE pkg-sync remove [OPTIONS] [PACKAGES]
+Preview which registered packages would be synced for a project, without copying anything.
 
-ARGUMENTS
+- `-d, --depth <n>` — dependency search depth (default `2`)
 
-  PACKAGES    Package name (use "." for the closest package.json)
+### `sync [path] [packages...]`
 
-OPTIONS
+Copy registered dependencies into a project's `node_modules` and watch for changes. Pass package names to limit the sync to a subset.
 
-  -i, --interactive    Interactive mode (Default: false)          
-          -a, --all    Remove all stored packages (Default: false)
+- `--no-watch` — copy once and exit instead of watching
+- `-i, --interactive` — pick packages to sync from a list
+- `-d, --depth <n>` — dependency search depth (default `2`)
 
-```
+### `config <set|get|restore>`
 
-## list
+Manage stored settings.
 
-```console
-Show all stored packages (pkg-sync list v2.0.3)
+- `config set <key> <value>` — set a value, parsed as JSON (e.g. `config set depth 3`)
+- `config get [key]` — print one value, or all settings when no key is given
+- `config restore` — reset the config to defaults
 
-USAGE pkg-sync list 
+### `update-check`
 
-```
-
-## validate
-
-```console
-Show coverage packages from project (pkg-sync validate v2.0.3)
-
-USAGE pkg-sync validate [OPTIONS] [PATH]
-
-ARGUMENTS
-
-  PATH    Path to package (path not set will be set to closest package.json)
-
-OPTIONS
-
-  -d, --depth=<depth>    Deep search of dependencies (Default: 2)
-
-```
-
-## sync
-
-```console
-Sync and watch packages in project (pkg-sync sync v2.0.3)
-
-USAGE pkg-sync sync [OPTIONS] [PATH]
-
-ARGUMENTS
-
-  PATH    Path to package (path not set will be set to closest package.json)
-
-OPTIONS
-
-              --watch    Watch files after sync (Default: true)  
-           --no-watch    Disable watch files after sync                    
-    -i, --interactive    Interactive mode (Default: false)       
-  -d, --depth=<depth>    Deep search of dependencies (Default: 2)
-
-```
-
-## update-check
-
-```console
-Check version of 'pkg-sync' (pkg-sync update-check v2.0.3)
-
-USAGE pkg-sync update-check 
-
-```
-
-## config
-
-```console
-Config (pkg-sync config v2.0.3)
-
-USAGE pkg-sync config set|get|restore
-
-COMMANDS
-
-      set    Set config               
-      get    Get config               
-  restore    Restore config to default
-
-Use pkg-sync config <command> --help for more information about a command.
-```
+Check npm for a newer version of pkg-sync.
