@@ -8,6 +8,13 @@ export const pathArg = {
   description: "Path to package (path not set will be set to closest package.json)",
 } as const satisfies ArgDef;
 
+/** Emit machine-readable JSON on stdout instead of human text. */
+export const jsonArg = {
+  type: "boolean",
+  default: false,
+  description: "Output machine-readable JSON",
+} as const satisfies ArgDef;
+
 /** Enable interactive multiselect prompts. */
 export const interactiveArg = {
   type: "boolean",

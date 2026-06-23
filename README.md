@@ -69,6 +69,24 @@ To watch non-default directories for a specific package, pass them when register
 
 > Colored output honors the `NO_COLOR` environment variable and is disabled automatically when output is not a TTY.
 
+## Using from automation / AI agents
+
+Every command accepts `--json` and prints a single JSON object on **stdout**:
+
+```sh
+pkg-sync list --json
+pkg-sync validate /path/to/app --json      # { "packages": ["my-lib"] }
+pkg-sync sync /path/to/app --no-watch --json   # { "synced": ["my-lib"], "watch": false }
+```
+
+The output contract:
+
+- **stdout carries data only** — human text, or one JSON line under `--json`. Diagnostics, progress and the update notice go to **stderr**, so `pkg-sync list --json` is always parseable.
+- **Exit codes:** `0` on success, `1` on error. Under `--json`, errors are emitted as `{"error": "<message>"}` on stderr.
+- **Stay non-interactive:** always pass `--no-watch` (the watcher never returns) and avoid `-i`/`--interactive` (it needs a TTY) — pass package names/paths explicitly instead.
+
+A [`SKILL.md`](./SKILL.md) (agentskills.io format) ships with the package so the tool can be taught to AI agents and installed via a skill manager.
+
 # Commands
 
 Run `pkg-sync <command> --help` for the full, up-to-date options of any command.

@@ -12,6 +12,7 @@ import { updateCheckCommand } from "./commands/updateCheck";
 import { configCommand } from "./commands/config";
 import { getPackageJson } from "./utils/getPackageJson";
 import { checkUpdates } from "./utils/checkUpdates";
+import { isJsonMode, setJsonMode } from "./utils/output";
 
 const packageJson = getPackageJson(import.meta.dirname);
 
@@ -36,20 +37,25 @@ const main = defineCommand({
   },
 });
 
-/** Print a failure as a clean one-liner (full stack only under PKG_SYNC_DEBUG). */
+/** Print a failure: JSON `{error}` on stderr in JSON mode, a clean one-liner otherwise. */
 function printError(err: unknown): void {
+  const message = err instanceof Error ? err.message : String(err);
   if (process.env.PKG_SYNC_DEBUG && err instanceof Error) {
     console.error(err.stack ?? err.message);
+  } else if (isJsonMode()) {
+    process.stderr.write(`${JSON.stringify({ error: message })}\n`);
   } else {
-    console.log(err instanceof Error ? err.message : String(err));
+    console.log(message);
   }
 }
 
 async function run(): Promise<void> {
   const argv = process.argv.slice(2);
+  setJsonMode(argv.includes("--json"));
   const wantsUsage = argv.some((a) => ["--help", "-h", "--version", "-v"].includes(a));
 
-  await checkUpdates(packageJson);
+  // Skip the update check in JSON mode so nothing competes with the data on stdout.
+  if (!isJsonMode()) await checkUpdates(packageJson);
 
   // citty's runMain owns the --help/--version banners; route normal dispatch through runCommand so
   // expected errors surface as a clean one-liner instead of a stack trace.

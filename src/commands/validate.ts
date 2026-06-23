@@ -2,7 +2,8 @@ import { defineCommand } from "citty";
 import { getPackageJson } from "../utils/getPackageJson";
 import { getRelatedDependencies } from "../utils/getRelatedDependencies";
 import { ApplicationError } from "../models/ApplicationError";
-import { depthArg, parseDepth, pathArg } from "./sharedArgs";
+import { emitJson, isJsonMode } from "../utils/output";
+import { depthArg, jsonArg, parseDepth, pathArg } from "./sharedArgs";
 
 /** `pkg-sync validate` — list which registered packages would be synced for a project, without syncing. */
 export const validateCommand = defineCommand({
@@ -10,13 +11,19 @@ export const validateCommand = defineCommand({
   args: {
     path: pathArg,
     depth: depthArg,
+    json: jsonArg,
   },
   run({ args }) {
     const packageJson = getPackageJson(args.path);
-    const packages = getRelatedDependencies(packageJson, parseDepth(args.depth));
+    const packages = getRelatedDependencies(packageJson, parseDepth(args.depth)).map(({ name }) => name);
     if (packages.length === 0) {
       throw new ApplicationError("No related dependencies found");
     }
-    console.log("Dependencies found", ...packages.map(({ name }) => name));
+
+    if (isJsonMode()) {
+      emitJson({ packages });
+    } else {
+      console.log("Dependencies found", ...packages);
+    }
   },
 });

@@ -8,7 +8,8 @@ import { excludeRules, includeDirectoriesRules, matcherOptions } from "../common
 import { SyncWatcher } from "../models/SyncWatcher";
 import { ApplicationError } from "../models/ApplicationError";
 import { applyGlobToDirs } from "../utils/applyGlobToDir";
-import { depthArg, interactiveArg, parseDepth, pathArg } from "./sharedArgs";
+import { emitJson, isJsonMode } from "../utils/output";
+import { depthArg, interactiveArg, jsonArg, parseDepth, pathArg } from "./sharedArgs";
 
 /** `pkg-sync sync` — copy registered dependencies into a project and (by default) keep watching them. */
 export const syncCommand = defineCommand({
@@ -18,6 +19,7 @@ export const syncCommand = defineCommand({
     watch: { type: "boolean", default: true, description: "Watch files after sync", negativeDescription: "Disable watch files after sync" },
     interactive: interactiveArg,
     depth: depthArg,
+    json: jsonArg,
   },
   async run({ args }) {
     const packageJson = getPackageJson(args.path);
@@ -30,7 +32,7 @@ export const syncCommand = defineCommand({
         ? relatedDependencies.filter((pkg) => packagesToSync.includes(pkg.name))
         : relatedDependencies;
 
-    if (args.interactive && relatedDependencies.length) {
+    if (args.interactive && process.stdout.isTTY && !isJsonMode() && relatedDependencies.length) {
       relatedPackages = await pickPackages(relatedDependencies, relatedPackages);
     }
 
@@ -38,13 +40,20 @@ export const syncCommand = defineCommand({
       throw new ApplicationError("No related dependencies found");
     }
 
-    console.log("Dependencies to synchronization", ...relatedPackages.map(({ name }) => name));
+    const synced = relatedPackages.map(({ name }) => name);
+    if (!isJsonMode()) {
+      console.log("Dependencies to synchronization", ...synced);
+    }
 
     const watchers = relatedPackages.map((pkg) => createWatcher(pkg));
     watchers.forEach((watcher) => watcher.copy());
 
     if (args.watch) {
       watchers.forEach((watcher) => watcher.watch());
+    }
+
+    if (isJsonMode()) {
+      emitJson({ synced, watch: args.watch });
     }
   },
 });

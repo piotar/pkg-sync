@@ -3,7 +3,17 @@ import * as p from "@clack/prompts";
 import { getPackageJson } from "../utils/getPackageJson";
 import { getApplicationData } from "../utils/getApplicationData";
 import { ApplicationError } from "../models/ApplicationError";
-import { interactiveArg } from "./sharedArgs";
+import { emitJson, isJsonMode } from "../utils/output";
+import { interactiveArg, jsonArg } from "./sharedArgs";
+
+/** Split requested names into those present in the registry and those that are unknown. */
+export function partitionRemovals(registered: string[], requested: string[]): { removed: string[]; missing: string[] } {
+  const known = new Set(registered);
+  return {
+    removed: requested.filter((name) => known.has(name)),
+    missing: requested.filter((name) => !known.has(name)),
+  };
+}
 
 /** `pkg-sync remove` — unregister packages by name, interactively, or all at once. */
 export const removeCommand = defineCommand({
@@ -12,6 +22,7 @@ export const removeCommand = defineCommand({
     packages: { type: "positional", required: false, description: 'Package name (use "." for the closest package.json)' },
     interactive: interactiveArg,
     all: { type: "boolean", alias: "a", default: false, description: "Remove all stored packages" },
+    json: jsonArg,
   },
   async run({ args }) {
     const appData = getApplicationData();
@@ -20,24 +31,27 @@ export const removeCommand = defineCommand({
     // A literal "." stands for the name in the closest package.json.
     const named = args._.map((name) => (name === "." ? getPackageJson().name : name));
 
-    let selectedPackages = args.all ? appPackages : named;
-    if (args.interactive && appPackages.length) {
-      selectedPackages = await pickPackages(appPackages, args.all ? appPackages : named);
+    let selected = args.all ? appPackages : named;
+    if (args.interactive && process.stdout.isTTY && !isJsonMode() && appPackages.length) {
+      selected = await pickPackages(appPackages, args.all ? appPackages : named);
     }
 
-    if (!selectedPackages.length) {
+    if (!selected.length) {
       throw new ApplicationError("No packages provided");
     }
 
-    for (const name of selectedPackages) {
-      if (!appData.packages[name]) {
-        console.log(`Package '${name}' does not exist in the list`);
-      } else {
-        console.log(`${name} was removed.`);
-        delete appData.packages[name];
-      }
+    const { removed, missing } = partitionRemovals(appPackages, selected);
+    for (const name of removed) {
+      delete appData.packages[name];
     }
     appData.$save();
+
+    if (isJsonMode()) {
+      emitJson({ removed, missing });
+      return;
+    }
+    for (const name of removed) console.log(`${name} was removed.`);
+    for (const name of missing) console.log(`Package '${name}' does not exist in the list`);
   },
 });
 

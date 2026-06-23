@@ -2,6 +2,7 @@ import { request } from "node:https";
 import { getApplicationData } from "./getApplicationData";
 import type { PackageJson } from "./getPackageJson";
 import { yellow } from "./ansi";
+import { note } from "./output";
 
 /** Throttle the startup update check to at most once every two days. */
 const CHECK_INTERVAL_DAYS = 2;
@@ -27,12 +28,12 @@ export async function getLatestVersion(packageJson: PackageJson): Promise<string
   return data["dist-tags"]?.latest ?? packageJson.version;
 }
 
-/** Print a friendly "update available" notice. */
+/** Print a friendly "update available" notice to stderr (diagnostics, never stdout data). */
 export function updateConsoleMessage(packageJson: PackageJson, latest: string): void {
-  console.log();
-  console.log(yellow(`Update available! ${packageJson.version} -> ${latest}`));
-  console.log(yellow(`Run "npm install -g ${packageJson.name}" to update.`));
-  console.log();
+  note();
+  note(yellow(`Update available! ${packageJson.version} -> ${latest}`));
+  note(yellow(`Run "npm install -g ${packageJson.name}" to update.`));
+  note();
 }
 
 /** Notify about a newer version on startup, throttled and never fatal. */
