@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import picomatch from "picomatch";
 import { type RgbColor, textToRgb } from "../utils/textToRgb";
 import { rgb } from "../utils/ansi";
+import { isJsonMode, note } from "../utils/output";
 
 /** Debounce window: batch rapid file events into a single sync pass. */
 const SYNC_DEBOUNCE_MS = 600;
@@ -71,9 +72,12 @@ export class SyncWatcher extends Set<string> {
     this.tick();
   }
 
-  /** Log a message prefixed with the package name in its stable color. */
+  /** Log a message prefixed with the package name in its stable color. Progress goes to stderr in
+   * JSON mode so it never pollutes the data on stdout. */
   private log(...message: unknown[]): void {
-    console.log(rgb(this.color, this.options?.name ?? ""), ...message);
+    const line = [rgb(this.color, this.options?.name ?? ""), ...message];
+    if (isJsonMode()) note(...line);
+    else console.log(...line);
   }
 
   /** (Re)arm the debounce timer so a burst of events flushes once. */

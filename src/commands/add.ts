@@ -2,7 +2,8 @@ import { defineCommand } from "citty";
 import { getApplicationData } from "../utils/getApplicationData";
 import { getPackageJson } from "../utils/getPackageJson";
 import { ApplicationError } from "../models/ApplicationError";
-import { pathArg } from "./sharedArgs";
+import { emitJson, isJsonMode } from "../utils/output";
+import { jsonArg, pathArg } from "./sharedArgs";
 
 /** `pkg-sync add` — register a package (by its path) so it can be synced into other projects. */
 export const addCommand = defineCommand({
@@ -12,6 +13,7 @@ export const addCommand = defineCommand({
     name: { type: "string", alias: "n", description: "Package name (override name from package.json)" },
     force: { type: "boolean", alias: "f", default: false, description: "Override package" },
     dir: { type: "string", alias: "d", description: "Directories to watch, comma-separated (override defaults)" },
+    json: jsonArg,
   },
   run({ args }) {
     const packageJson = getPackageJson(args.path);
@@ -22,13 +24,15 @@ export const addCommand = defineCommand({
       throw new ApplicationError('Package already exists, use "--force" flag to override it');
     }
 
-    appData.packages[name] = {
-      path: packageJson.$dirname,
-      dir: parseDirs(args.dir),
-    };
-
+    const record = { path: packageJson.$dirname, dir: parseDirs(args.dir) };
+    appData.packages[name] = record;
     appData.$save();
-    console.log(`${name} was added.`);
+
+    if (isJsonMode()) {
+      emitJson({ added: name, path: record.path, dir: record.dir });
+    } else {
+      console.log(`${name} was added.`);
+    }
   },
 });
 
