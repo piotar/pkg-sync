@@ -1,4 +1,5 @@
 import { defineCommand } from "citty";
+import * as p from "@clack/prompts";
 import { type ApplicationConfig, defaultJson, getApplicationData } from "../utils/getApplicationData";
 import { emitJson, isJsonMode } from "../utils/output";
 import { jsonArg } from "./sharedArgs";
@@ -23,9 +24,9 @@ const setCommand = defineCommand({
     if (isJsonMode()) {
       emitJson({ key, value: appData.config[key], changed });
     } else if (changed) {
-      console.log(`Property '${key}' value changed.`);
+      p.log.success(`Property '${key}' value changed.`);
     } else {
-      console.log(`Missing property '${key}' in config`);
+      p.log.warn(`Missing property '${key}' in config`);
     }
   },
 });
@@ -44,11 +45,12 @@ const getCommand = defineCommand({
     if (isJsonMode()) {
       emitJson(key ? { [key]: config[key] } : { ...config });
     } else if (key) {
-      console.log(config[key]);
+      p.log.message(`${key} = ${JSON.stringify(config[key])}`);
     } else {
-      for (const [name, value] of Object.entries(config)) {
-        console.log(name, "=", value);
-      }
+      const body = Object.entries(config)
+        .map(([name, value]) => `${name} = ${JSON.stringify(value)}`)
+        .join("\n");
+      p.note(body, "Config");
     }
   },
 });
@@ -65,7 +67,7 @@ const restoreCommand = defineCommand({
     if (isJsonMode()) {
       emitJson({ config: appData.config });
     } else {
-      console.log("Config was restored to default");
+      p.log.success("Config was restored to default");
     }
   },
 });

@@ -50,8 +50,8 @@ export const removeCommand = defineCommand({
       emitJson({ removed, missing });
       return;
     }
-    for (const name of removed) console.log(`${name} was removed.`);
-    for (const name of missing) console.log(`Package '${name}' does not exist in the list`);
+    for (const name of removed) p.log.success(`${name} was removed.`);
+    for (const name of missing) p.log.warn(`Package '${name}' does not exist in the list`);
   },
 });
 

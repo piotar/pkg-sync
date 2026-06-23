@@ -53,6 +53,7 @@ export async function checkUpdates(packageJson: PackageJson): Promise<void> {
     appData.updateCheck = now;
     appData.$save();
   } catch (error) {
-    console.log((error as Error)?.message);
+    // Startup check is best-effort; surface failures quietly on stderr, never on stdout.
+    note((error as Error)?.message);
   }
 }
