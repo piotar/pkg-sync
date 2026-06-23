@@ -1,4 +1,5 @@
 import { defineCommand } from "citty";
+import * as p from "@clack/prompts";
 import { getPackageJson } from "../utils/getPackageJson";
 import { getRelatedDependencies } from "../utils/getRelatedDependencies";
 import { ApplicationError } from "../models/ApplicationError";
@@ -23,7 +24,7 @@ export const validateCommand = defineCommand({
     if (isJsonMode()) {
       emitJson({ packages });
     } else {
-      console.log("Dependencies found", ...packages);
+      p.note(packages.join("\n"), "Dependencies found");
     }
   },
 });

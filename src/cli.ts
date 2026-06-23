@@ -2,6 +2,7 @@
 /** pkg-sync CLI entry point — wires the commands into the citty command tree. */
 
 import { defineCommand, runCommand, runMain, showUsage } from "citty";
+import * as p from "@clack/prompts";
 import { PROJECT_NAME } from "./common/appConfig";
 import { addCommand } from "./commands/add";
 import { removeCommand } from "./commands/remove";
@@ -45,7 +46,7 @@ function printError(err: unknown): void {
   } else if (isJsonMode()) {
     process.stderr.write(`${JSON.stringify({ error: message })}\n`);
   } else {
-    console.log(message);
+    p.log.error(message);
   }
 }
 

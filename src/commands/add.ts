@@ -1,4 +1,5 @@
 import { defineCommand } from "citty";
+import * as p from "@clack/prompts";
 import { getApplicationData } from "../utils/getApplicationData";
 import { getPackageJson } from "../utils/getPackageJson";
 import { ApplicationError } from "../models/ApplicationError";
@@ -31,7 +32,7 @@ export const addCommand = defineCommand({
     if (isJsonMode()) {
       emitJson({ added: name, path: record.path, dir: record.dir });
     } else {
-      console.log(`${name} was added.`);
+      p.log.success(`${name} was added.`);
     }
   },
 });

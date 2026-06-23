@@ -1,4 +1,5 @@
 import { defineCommand } from "citty";
+import * as p from "@clack/prompts";
 import { PROJECT_DATA_FILE_PATH } from "../common/appConfig";
 import { includeDirectoriesRules } from "../common/watchRules";
 import { type ApplicationData, getApplicationData } from "../utils/getApplicationData";
@@ -35,19 +36,22 @@ export const listCommand = defineCommand({
       return;
     }
 
-    console.log("Application data file path:", result.dataFile);
-    console.log("Default watch directories:", result.defaultWatchDirs);
+    p.intro("Registered packages");
+    p.log.info(`Data file: ${result.dataFile}`);
+    p.log.info(`Default watch directories: ${result.defaultWatchDirs.join(", ")}`);
+
     if (result.packages.length === 0) {
-      console.log("There are no packages in the list");
+      p.outro("There are no packages in the list");
       return;
     }
+
     for (const { name, path, dir } of result.packages) {
-      console.log();
-      console.log(green(name));
-      console.log("Path:", path);
+      const lines = [`Path: ${path}`];
       if (dir) {
-        console.log("Custom watch directories:", dir);
+        lines.push(`Custom watch directories: ${dir.join(", ")}`);
       }
+      p.note(lines.join("\n"), green(name));
     }
+    p.outro(`${result.packages.length} package(s)`);
   },
 });
