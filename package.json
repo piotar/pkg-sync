@@ -42,7 +42,8 @@
         "test": "bun test",
         "lint": "eslint .",
         "changeset": "changeset",
-        "version-packages": "changeset version",
+        "version-packages": "changeset version && bun install",
+        "release": "changeset publish",
         "prepublishOnly": "bun run build"
     },
     "devDependencies": {

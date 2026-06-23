@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+# Never cancel a publish midway; let each run on main finish.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write # commit the Version PR, push tags, create GitHub Releases
+  pull-requests: write # open/update the "Version Packages" PR
+  # Required for npm Trusted Publishing (OIDC): lets the job mint an OIDC token
+  # so npm can authenticate without a long-lived NPM token.
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Bun runs the build (scripts/build.ts uses Bun.build).
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # Node provides the npm CLI that changesets uses to publish via OIDC.
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      # Trusted Publishing landed in npm 11.5.1; Node ships an older npm, so upgrade.
+      - run: npm install -g npm@latest
+
+      - run: bun install --frozen-lockfile
+
+      # On push to main:
+      #  - if changesets exist -> open/update the "Version Packages" PR (runs `version`).
+      #  - if the Version PR was just merged (no changesets left) -> run `publish`.
+      # No NODE_AUTH_TOKEN: npm exchanges the OIDC token for short-lived credentials
+      # and attaches build provenance automatically.
+      - name: Create Release PR or publish to npm
+        uses: changesets/action@v1
+        with:
+          version: bun run version-packages
+          publish: bun run release
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
