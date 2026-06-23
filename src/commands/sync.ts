@@ -48,6 +48,11 @@ export const syncCommand = defineCommand({
     const watchers = relatedPackages.map((pkg) => createWatcher(pkg));
     watchers.forEach((watcher) => watcher.copy());
 
+    // Record the active sync so `status` can report it and `unsync` can undo it.
+    const appData = getApplicationData();
+    appData.targets[packageJson.$dirname] = { packages: synced, syncedAt: Date.now() };
+    appData.$save();
+
     if (args.watch) {
       watchers.forEach((watcher) => watcher.watch());
     }

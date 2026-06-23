@@ -30,7 +30,7 @@ bun run typecheck          # tsc --noEmit
 bun run lint               # eslint
 ```
 
-CLI subcommands: `add`, `remove` (`rm`), `list` (`ls`), `validate`, `sync`, `config` (`set`/`get`/`restore`), `update-check`. See `README.md` for flags.
+CLI subcommands: `add`, `remove` (`rm`), `list` (`ls`), `validate`, `sync`, `unsync` (`restore`), `status`, `config` (`set`/`get`/`restore`), `update-check`. See `README.md` for flags.
 
 ## Architecture
 
@@ -45,10 +45,10 @@ Small, single-bin CLI organized by responsibility under `src/`:
 ### Key modules
 
 - **`models/JsonFile.ts`** — loads a JSON file and returns a `Proxy` so callers read/write data fields directly (`file.config`), while `$`-prefixed members (`$data`, `$save`, `$dirname`, `$fileExists`) expose the file itself. Backs both the registry and parsed `package.json` files.
-- **`utils/getApplicationData.ts`** — the global registry (`~/.pkg-sync/data.json`): `{ version, updateCheck, packages, config }`. Loaded once as a singleton; `transform` merges stored data over defaults so new fields always have a value.
+- **`utils/getApplicationData.ts`** — the global registry (`~/.pkg-sync/data.json`): `{ version, updateCheck, packages, config, targets }`. `targets` records active syncs keyed by the target project's absolute path (`{ packages, syncedAt }`), powering `status` and `unsync`. Loaded once as a singleton; `transform` merges stored data over defaults so new fields always have a value.
 - **`utils/getPackageJson.ts`** — loads a `package.json`, cached by real path; `$dependencies` (a `Set` merged from deps/devDeps/peerDeps) is computed on access via a Proxy.
 - **`utils/getDependencies.ts` / `getRelatedDependencies.ts`** — resolve a project's dependency tree to a given **depth** (deduplicated via `findPackage` walking `node_modules`), then intersect with registered packages — these are what `sync`/`validate` operate on.
-- **`models/SyncWatcher.ts`** — extends `Set<string>`; `copy()` does a one-shot sync, `watch()` mirrors changes with a 600ms debounce. Filters paths through picomatch include/exclude matchers; refuses to sync a directory onto itself. Logs are prefixed with the package name in a stable color from `utils/textToRgb.ts`.
+- **`models/SyncWatcher.ts`** — extends `Set<string>`; `copy()` does a one-shot sync, `watch()` mirrors changes with a 600ms debounce. Filters paths through picomatch include/exclude matchers; refuses to sync a directory onto itself. Logs are prefixed with the package name in a stable color from `utils/textToRgb.ts`. Unit-tested in `SyncWatcher.test.ts` (the private debounced `sync` is exercised directly to stay deterministic).
 - **`utils/ansi.ts`** — tiny ANSI helper (replaces chalk). `rgb`/`green`/`yellow`; output is plain when `NO_COLOR` is set or stdout is not a TTY.
 
 ### Design invariants (don't break these)

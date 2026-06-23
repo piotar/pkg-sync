@@ -4,7 +4,7 @@ import type { ApplicationData } from "../utils/getApplicationData";
 
 /** Build a minimal ApplicationData around a set of registered packages. */
 function appData(packages: ApplicationData["packages"]): ApplicationData {
-  return { version: 1, updateCheck: 0, packages, config: { depth: 2 } };
+  return { version: 1, updateCheck: 0, packages, config: { depth: 2 }, targets: {} };
 }
 
 describe("listResult", () => {

@@ -31,6 +31,7 @@ trouble (duplicate React/hooks, wrong `peerDependencies` resolution, tools that 
 
 - **Never start the watcher** — bare `sync` watches forever and never returns. Always pass `--no-watch`.
 - **Don't use `-i`/`--interactive`** — it needs a TTY. Pass package names / paths explicitly instead.
+- **`unsync` reinstalls by default** (runs the project's package manager — network + time). Pass `--no-reinstall` for a deterministic, offline cleanup and restore the dependency yourself.
 - State is global, per-user (`~/.pkg-sync/data.json`); registering a package persists across projects.
 
 ## Recipes
@@ -54,9 +55,18 @@ Inspect and clean up:
 
 ```sh
 pkg-sync list --json                       # { dataFile, defaultWatchDirs, packages: [...] }
+pkg-sync status --json                     # { "targets": [{ path, packages, syncedAt, stale }] }
 pkg-sync remove library --json             # { "removed": ["library"], "missing": [] }
 pkg-sync config get --json                 # { "depth": 2 }
 pkg-sync config set depth 3 --json         # value is parsed as JSON
+```
+
+Undo a sync — remove the synced files and restore the published versions:
+
+```sh
+pkg-sync unsync /path/to/app --json        # { "unsynced": ["library"], "reinstalled": true }
+# offline / deterministic: skip the package-manager reinstall and restore it yourself
+pkg-sync unsync /path/to/app --no-reinstall --json   # { "unsynced": ["library"], "reinstalled": false }
 ```
 
 `--depth <n>` (on `sync`/`validate`) controls how deep the dependency tree is searched (default `2`).
