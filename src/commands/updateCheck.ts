@@ -1,4 +1,5 @@
 import { defineCommand } from "citty";
+import * as p from "@clack/prompts";
 import { PROJECT_NAME } from "../common/appConfig";
 import { getLatestVersion, updateConsoleMessage } from "../utils/checkUpdates";
 import { getPackageJson } from "../utils/getPackageJson";
@@ -17,7 +18,7 @@ export const updateCheckCommand = defineCommand({
     if (isJsonMode()) {
       emitJson({ current: packageJson.version, latest, upToDate });
     } else if (upToDate) {
-      console.log("Package is up to date");
+      p.log.success("Package is up to date");
     } else {
       updateConsoleMessage(packageJson, latest);
     }

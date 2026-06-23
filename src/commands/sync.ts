@@ -42,7 +42,7 @@ export const syncCommand = defineCommand({
 
     const synced = relatedPackages.map(({ name }) => name);
     if (!isJsonMode()) {
-      console.log("Dependencies to synchronization", ...synced);
+      p.note(synced.join("\n"), "Dependencies to synchronize");
     }
 
     const watchers = relatedPackages.map((pkg) => createWatcher(pkg));
@@ -54,6 +54,10 @@ export const syncCommand = defineCommand({
 
     if (isJsonMode()) {
       emitJson({ synced, watch: args.watch });
+    } else if (args.watch) {
+      p.log.info("Watching for changes... (Ctrl+C to stop)");
+    } else {
+      p.log.success("Sync complete");
     }
   },
 });
