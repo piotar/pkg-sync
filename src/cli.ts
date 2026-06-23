@@ -9,6 +9,8 @@ import { removeCommand } from "./commands/remove";
 import { listCommand } from "./commands/list";
 import { validateCommand } from "./commands/validate";
 import { syncCommand } from "./commands/sync";
+import { unsyncCommand } from "./commands/unsync";
+import { statusCommand } from "./commands/status";
 import { updateCheckCommand } from "./commands/updateCheck";
 import { configCommand } from "./commands/config";
 import { getPackageJson } from "./utils/getPackageJson";
@@ -33,6 +35,9 @@ const main = defineCommand({
     list: listCommand,
     validate: validateCommand,
     sync: syncCommand,
+    unsync: unsyncCommand,
+    restore: unsyncCommand,
+    status: statusCommand,
     "update-check": updateCheckCommand,
     config: configCommand,
   },

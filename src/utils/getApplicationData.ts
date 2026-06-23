@@ -12,12 +12,20 @@ export interface ApplicationConfig {
   depth: number;
 }
 
+/** An active sync: which packages were mirrored into a target project, and when. */
+export interface SyncSession {
+  packages: string[];
+  syncedAt: ReturnType<typeof Date.now>;
+}
+
 /** The on-disk shape of `~/.pkg-sync/data.json`. */
 export interface ApplicationData extends Record<string | symbol, unknown> {
   version: number;
   updateCheck: ReturnType<typeof Date.now>;
   packages: Record<string, ApplicationDataPackage>;
   config: ApplicationConfig;
+  // Active syncs keyed by the target project's absolute path.
+  targets: Record<string, SyncSession>;
 }
 
 /** Values used when the data file is missing or partial. */
@@ -28,6 +36,7 @@ export const defaultJson: ApplicationData = {
   config: {
     depth: 2,
   },
+  targets: {},
 };
 
 /** Merge stored data over the defaults so new fields always have a value. */

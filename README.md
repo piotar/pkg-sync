@@ -77,6 +77,8 @@ Every command accepts `--json` and prints a single JSON object on **stdout**:
 pkg-sync list --json
 pkg-sync validate /path/to/app --json      # { "packages": ["my-lib"] }
 pkg-sync sync /path/to/app --no-watch --json   # { "synced": ["my-lib"], "watch": false }
+pkg-sync status --json                          # { "targets": [{ "path": "/app", "packages": ["my-lib"], "syncedAt": 0, "stale": false }] }
+pkg-sync unsync /path/to/app --json             # { "unsynced": ["my-lib"], "reinstalled": true }
 ```
 
 The output contract:
@@ -123,6 +125,19 @@ Copy registered dependencies into a project's `node_modules` and watch for chang
 - `--no-watch` — copy once and exit instead of watching
 - `-i, --interactive` — pick packages to sync from a list
 - `-d, --depth <n>` — dependency search depth (default `2`)
+
+### `unsync [path]` (alias `restore`)
+
+Remove previously synced files from a project and restore the published versions. Operates on the syncs recorded for the project (see `status`); `path` defaults to the closest `package.json`.
+
+- `--no-reinstall` — only delete the synced files, skip the package-manager reinstall
+- `-i, --interactive` — pick which synced packages to unsync from a list
+
+The package manager is detected from the project's lockfile (`bun`, `pnpm`, `yarn`, else `npm`).
+
+### `status [path]`
+
+Show which packages are currently synced into which projects. Without `path`, every recorded target is listed; a target is flagged **stale** when its `node_modules` no longer exists.
 
 ### `config <set|get|restore>`
 
