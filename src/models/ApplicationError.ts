@@ -1,7 +1,9 @@
-import { CommanderError } from 'commander';
+/** An expected, user-facing error — printed as a clean one-liner instead of a stack trace. */
+export class ApplicationError extends Error {
+  public readonly exitCode = 1;
 
-export class ApplicationError extends CommanderError {
-    constructor(message: string) {
-        super(1, 'application.error', message);
-    }
+  constructor(message: string) {
+    super(message);
+    this.name = "ApplicationError";
+  }
 }

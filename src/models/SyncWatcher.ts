@@ -1,91 +1,105 @@
-import { cpSync, rmSync, existsSync, watch, realpathSync, readdirSync, FSWatcher } from 'node:fs';
-import { resolve } from 'node:path';
-import picomatch from 'picomatch';
-import chalk from 'chalk';
-import { RgbColor, textToRgb } from '../utils/textToRgb.js';
+import { cpSync, rmSync, existsSync, watch, realpathSync, readdirSync, type FSWatcher } from "node:fs";
+import { resolve } from "node:path";
+import picomatch from "picomatch";
+import { type RgbColor, textToRgb } from "../utils/textToRgb";
+import { rgb } from "../utils/ansi";
+
+/** Debounce window: batch rapid file events into a single sync pass. */
+const SYNC_DEBOUNCE_MS = 600;
 
 interface SyncWatcherOptions {
-    name: string;
-    include: picomatch.Matcher;
-    exclude: picomatch.Matcher;
+  name: string;
+  include: picomatch.Matcher;
+  exclude: picomatch.Matcher;
 }
 
+/**
+ * Mirrors one package's source directory into a target, on demand (`copy`) or live (`watch`).
+ * Pending file paths are collected in the underlying Set and flushed together after a short debounce.
+ */
 export class SyncWatcher extends Set<string> {
-    private handler?: ReturnType<typeof setTimeout>;
-    private readonly color: RgbColor;
-    public readonly canProcess: boolean;
+  private handler?: ReturnType<typeof setTimeout>;
+  private readonly color: RgbColor;
+  public readonly canProcess: boolean;
 
-    constructor(
-        public readonly source: string,
-        public readonly target: string,
-        private readonly options?: SyncWatcherOptions,
-    ) {
-        super();
-        this.color = textToRgb(this.options?.name);
+  constructor(
+    public readonly source: string,
+    public readonly target: string,
+    private readonly options?: SyncWatcherOptions,
+  ) {
+    super();
+    this.color = textToRgb(this.options?.name);
 
-        this.canProcess = realpathSync(source) !== realpathSync(target);
-        if (!this.canProcess) {
-            return Object.assign(this, {
-                watch: () => this.log('[WATCH]', 'Source and destination path are equal'),
-                copy: () => this.log('[COPY]', 'Source and destination path are equal'),
-            });
-        }
+    // Refuse to sync a directory onto itself; replace the public methods with a no-op + notice.
+    this.canProcess = realpathSync(source) !== realpathSync(target);
+    if (!this.canProcess) {
+      Object.assign(this, {
+        watch: () => this.log("[WATCH]", "Source and destination path are equal"),
+        copy: () => this.log("[COPY]", "Source and destination path are equal"),
+      });
     }
+  }
 
-    public add(path: string): this {
-        if (this.isValid(path)) {
-            super.add(path);
-        }
-        return this;
+  /** Queue a path for syncing, keeping only those that pass the include/exclude rules. */
+  public override add(path: string): this {
+    if (this.isValid(path)) {
+      super.add(path);
     }
+    return this;
+  }
 
-    public clear(): void {
-        super.clear();
-        this.handler = undefined;
-    }
+  public override clear(): void {
+    super.clear();
+    this.handler = undefined;
+  }
 
-    public watch(): FSWatcher {
-        return watch(this.source, { recursive: true }, (event, filename) => {
-            if (filename) {
-                this.add(filename);
-                this.tick();
-            }
-        });
-    }
-
-    public copy(): void {
-        const files = readdirSync(this.source);
-        files.forEach((filename) => {
-            this.add(filename);
-        });
+  /** Watch the source recursively and sync every change. */
+  public watch(): FSWatcher {
+    return watch(this.source, { recursive: true }, (_event, filename) => {
+      if (filename) {
+        this.add(filename);
         this.tick();
-    }
+      }
+    });
+  }
 
-    private log(...message: unknown[]): void {
-        console.log(chalk.rgb(...this.color)(this.options?.name), ...message);
+  /** Do a one-shot full sync of the source's top-level entries. */
+  public copy(): void {
+    for (const filename of readdirSync(this.source)) {
+      this.add(filename);
     }
+    this.tick();
+  }
 
-    private tick(): void {
-        clearTimeout(this.handler);
-        this.handler = setTimeout(this.sync.bind(this), 600);
-    }
+  /** Log a message prefixed with the package name in its stable color. */
+  private log(...message: unknown[]): void {
+    console.log(rgb(this.color, this.options?.name ?? ""), ...message);
+  }
 
-    private sync(): void {
-        this.forEach((item) => {
-            const a = resolve(this.source, item);
-            const b = resolve(this.target, item);
+  /** (Re)arm the debounce timer so a burst of events flushes once. */
+  private tick(): void {
+    clearTimeout(this.handler);
+    this.handler = setTimeout(this.sync.bind(this), SYNC_DEBOUNCE_MS);
+  }
 
-            if (existsSync(a)) {
-                cpSync(a, b, { force: true, recursive: true });
-            } else {
-                rmSync(b, { force: true, recursive: true });
-            }
-            this.log('[SYNC]', a, '->', b);
-        });
-        this.clear();
-    }
+  /** Flush all queued paths: copy existing files, remove deleted ones, then reset the queue. */
+  private sync(): void {
+    this.forEach((item) => {
+      const from = resolve(this.source, item);
+      const to = resolve(this.target, item);
 
-    private isValid(filename: string): boolean {
-        return this.options ? this.options?.include(filename) && !this.options?.exclude(filename) : true;
-    }
+      if (existsSync(from)) {
+        cpSync(from, to, { force: true, recursive: true });
+      } else {
+        rmSync(to, { force: true, recursive: true });
+      }
+      this.log("[SYNC]", from, "->", to);
+    });
+    this.clear();
+  }
+
+  /** A path is valid when it matches the include rules and not the exclude rules. */
+  private isValid(filename: string): boolean {
+    return this.options ? this.options.include(filename) && !this.options.exclude(filename) : true;
+  }
 }

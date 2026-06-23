@@ -1,20 +1,6 @@
 {
-    "compilerOptions": {
-        "target": "ESNext",
-        "moduleResolution": "nodenext",
-        "module": "nodenext",
-        "rootDir": "./src",
-        "outDir": "dist",
-        "strict": true,
-        "strictNullChecks": true,
-        "noImplicitThis": true,
-        "noImplicitReturns": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "noImplicitAny": true,
-        "esModuleInterop": true,
-        "declaration": true
-    },
-    "include": ["src/**/*.ts", "test/**/*.ts"],
-    "exclude": ["node_modules", "./dist"]
+  "extends": "@tsconfig/bun/tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun", "node"]
+  }
 }
