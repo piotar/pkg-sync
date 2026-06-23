@@ -1,85 +1,80 @@
-import { Argument, Command, Option } from 'commander';
-import picomatch from 'picomatch';
-import prompts from 'prompts';
-import { getPackageJson } from '../utils/getPackageJson.js';
-import { getRelatedDependencies } from '../utils/getRelatedDependencies.js';
-import { getApplicationData } from '../utils/getApplicationData.js';
-import { excludeRules, includeDirectoriesRules, matcherOptions } from '../common/watchRules.js';
-import { SyncWatcher } from '../models/SyncWatcher.js';
-import { ApplicationError } from '../models/ApplicationError.js';
-import { applyGlobToDirs } from '../utils/applyGlobToDir.js';
-import depthOption from './options/depth.js';
-import interactiveOption from './options/interactive.js';
-import pathArgument from './arguments/path.js';
+import { defineCommand } from "citty";
+import * as p from "@clack/prompts";
+import picomatch from "picomatch";
+import { getPackageJson, type PackageJsonFile } from "../utils/getPackageJson";
+import { getRelatedDependencies } from "../utils/getRelatedDependencies";
+import { getApplicationData } from "../utils/getApplicationData";
+import { excludeRules, includeDirectoriesRules, matcherOptions } from "../common/watchRules";
+import { SyncWatcher } from "../models/SyncWatcher";
+import { ApplicationError } from "../models/ApplicationError";
+import { applyGlobToDirs } from "../utils/applyGlobToDir";
+import { depthArg, interactiveArg, parseDepth, pathArg } from "./sharedArgs";
 
-interface SyncCommandOptions {
-    watch: boolean;
-    depth: number;
-    interactive: boolean;
+/** `pkg-sync sync` — copy registered dependencies into a project and (by default) keep watching them. */
+export const syncCommand = defineCommand({
+  meta: { name: "sync", description: "Sync and watch packages in project" },
+  args: {
+    path: pathArg,
+    watch: { type: "boolean", default: true, description: "Watch files after sync", negativeDescription: "Disable watch files after sync" },
+    interactive: interactiveArg,
+    depth: depthArg,
+  },
+  async run({ args }) {
+    const packageJson = getPackageJson(args.path);
+    const relatedDependencies = getRelatedDependencies(packageJson, parseDepth(args.depth));
+
+    // Positional args after the path are explicit package names to limit the sync to.
+    const packagesToSync = args._.slice(1);
+    let relatedPackages =
+      packagesToSync.length > 0
+        ? relatedDependencies.filter((pkg) => packagesToSync.includes(pkg.name))
+        : relatedDependencies;
+
+    if (args.interactive && relatedDependencies.length) {
+      relatedPackages = await pickPackages(relatedDependencies, relatedPackages);
+    }
+
+    if (!relatedPackages.length) {
+      throw new ApplicationError("No related dependencies found");
+    }
+
+    console.log("Dependencies to synchronization", ...relatedPackages.map(({ name }) => name));
+
+    const watchers = relatedPackages.map((pkg) => createWatcher(pkg));
+    watchers.forEach((watcher) => watcher.copy());
+
+    if (args.watch) {
+      watchers.forEach((watcher) => watcher.watch());
+    }
+  },
+});
+
+/** Build a SyncWatcher for one dependency, using its custom dirs or the defaults. */
+function createWatcher(dependencyPackage: PackageJsonFile): SyncWatcher {
+  const packageRecord = getApplicationData().packages[dependencyPackage.name];
+  if (!packageRecord) {
+    throw new ApplicationError(`Package '${dependencyPackage.name}' is not registered`);
+  }
+  const exclude = picomatch(excludeRules, matcherOptions);
+  const include = packageRecord.dir?.length
+    ? picomatch(applyGlobToDirs(packageRecord.dir), matcherOptions)
+    : picomatch(applyGlobToDirs(includeDirectoriesRules), matcherOptions);
+
+  return new SyncWatcher(packageRecord.path, dependencyPackage.$dirname, {
+    name: dependencyPackage.name,
+    include,
+    exclude,
+  });
 }
 
-const appData = getApplicationData();
-
-export default new Command('sync')
-    .description('Sync and watch packages in project')
-    .addArgument(pathArgument)
-    .addArgument(
-        new Argument('[packages...]', 'Package name to sync').argParser<string[]>((name, argument = []) => [
-            ...argument,
-            name,
-        ]),
-    )
-    .addOption(new Option('--no-watch', 'Disable watch files after sync'))
-    .addOption(interactiveOption)
-    .addOption(depthOption)
-    .action(async (path: string, packagesToSync: string[], options: SyncCommandOptions) => {
-        const packageJson = getPackageJson(path);
-        const relatedDependencies = getRelatedDependencies(packageJson, options.depth);
-
-        let relatedPackages =
-            packagesToSync?.length > 0
-                ? relatedDependencies.filter((p) => packagesToSync.includes(p.name))
-                : relatedDependencies;
-
-        if (options.interactive && relatedDependencies.length) {
-            relatedPackages = (
-                await prompts({
-                    type: 'multiselect',
-                    name: 'packages',
-                    message: 'Pick packages to sync',
-                    choices: relatedDependencies.map((relatedPackage) => ({
-                        value: relatedPackage,
-                        title: relatedPackage.name,
-                        selected: relatedPackages.some((p) => p === relatedPackage),
-                    })),
-                })
-            ).packages;
-        }
-
-        if (!relatedPackages?.length) {
-            throw new ApplicationError('No related dependencies found');
-        }
-
-        console.log('Dependencies to synchronization', ...relatedPackages.map(({ name }) => name));
-
-        const excludeMatcher = picomatch(excludeRules, matcherOptions);
-        const includeMatcher = picomatch(applyGlobToDirs(includeDirectoriesRules), matcherOptions);
-
-        const packages = relatedPackages.map((dependencyPackage) => {
-            const packageRecord = appData.packages[dependencyPackage.name];
-
-            return new SyncWatcher(packageRecord.path, dependencyPackage.$dirname, {
-                name: dependencyPackage.name,
-                include: packageRecord.dir?.length
-                    ? picomatch(applyGlobToDirs(packageRecord.dir), matcherOptions)
-                    : includeMatcher,
-                exclude: excludeMatcher,
-            });
-        });
-
-        packages.forEach((p) => p.copy());
-
-        if (options.watch) {
-            packages.forEach((p) => p.watch());
-        }
-    });
+/** Prompt the user to multiselect packages to sync, with the given ones preselected. */
+async function pickPackages(all: PackageJsonFile[], preselected: PackageJsonFile[]): Promise<PackageJsonFile[]> {
+  const result = await p.multiselect({
+    message: "Pick packages to sync",
+    options: all.map((pkg) => ({ value: pkg.name, label: pkg.name })),
+    initialValues: preselected.map((pkg) => pkg.name),
+    required: false,
+  });
+  if (p.isCancel(result)) return [];
+  return all.filter((pkg) => result.includes(pkg.name));
+}

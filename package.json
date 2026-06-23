@@ -27,36 +27,32 @@
         "pkg-sync": "./dist/cli.js"
     },
     "files": [
-        "dist"
+        "dist",
+        "README.md"
     ],
     "engines": {
         "node": ">=22.0.0"
     },
     "scripts": {
-        "dev": "tsc --watch",
-        "prebuild": "rimraf dist",
-        "build": "tsc",
-        "type-check": "tsc --noEmit",
-        "prepare": "bunx husky",
+        "pkg-sync": "bun run ./src/cli.ts",
+        "build": "bun run ./scripts/build.ts",
+        "start": "node ./dist/cli.js",
+        "typecheck": "tsc --noEmit",
+        "test": "bun test",
+        "lint": "eslint .",
         "prepublishOnly": "bun run build"
     },
-    "dependencies": {
-        "chalk": "5.4.1",
-        "commander": "14.0.3",
-        "picomatch": "4.0.3",
-        "prompts": "2.4.2"
-    },
     "devDependencies": {
+        "@clack/prompts": "1.6.0",
+        "@eslint/js": "10.0.1",
+        "@tsconfig/bun": "1.0.10",
+        "@types/bun": "1.3.14",
         "@types/node": "25.2.0",
         "@types/picomatch": "4.0.2",
-        "@types/prompts": "2.4.9",
-        "husky": "9.1.7",
-        "lint-staged": "16.2.6",
-        "prettier": "3.8.1",
-        "rimraf": "6.1.2",
-        "typescript": "5.9.3"
-    },
-    "lint-staged": {
-        "**/*.{js,ts,json}": "prettier --write"
+        "citty": "0.2.2",
+        "eslint": "10.5.0",
+        "picomatch": "4.0.3",
+        "typescript": "5.9.3",
+        "typescript-eslint": "8.62.0"
     }
 }

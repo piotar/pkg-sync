@@ -1,49 +1,55 @@
-import { JsonFile } from '../models/JsonFile.js';
-import { PROJECT_DATA_FILE_PATH } from '../common/appConfig.js';
+import { JsonFile } from "../models/JsonFile";
+import { PROJECT_DATA_FILE_PATH } from "../common/appConfig";
 
+/** A registered package: where it lives and, optionally, which dirs to watch. */
 export interface ApplicationDataPackage {
-    path: string;
-    dir?: string[];
+  path: string;
+  dir?: string[];
 }
 
+/** User-tunable settings. */
 export interface ApplicationConfig {
-    depth: number;
+  depth: number;
 }
 
+/** The on-disk shape of `~/.pkg-sync/data.json`. */
 export interface ApplicationData extends Record<string | symbol, unknown> {
-    version: number;
-    updateCheck: ReturnType<typeof Date.now>;
-    packages: Record<string, ApplicationDataPackage>;
-    config: ApplicationConfig;
+  version: number;
+  updateCheck: ReturnType<typeof Date.now>;
+  packages: Record<string, ApplicationDataPackage>;
+  config: ApplicationConfig;
 }
 
+/** Values used when the data file is missing or partial. */
 export const defaultJson: ApplicationData = {
-    version: 1,
-    updateCheck: Date.now(),
-    packages: {},
-    config: {
-        depth: 2,
-    },
+  version: 1,
+  updateCheck: Date.now(),
+  packages: {},
+  config: {
+    depth: 2,
+  },
 };
 
+/** Merge stored data over the defaults so new fields always have a value. */
 function transform(data: Partial<ApplicationData>): ApplicationData {
-    return {
-        ...defaultJson,
-        ...data,
-        config: {
-            ...defaultJson.config,
-            ...data.config,
-        },
-    };
+  return {
+    ...defaultJson,
+    ...data,
+    config: {
+      ...defaultJson.config,
+      ...data.config,
+    },
+  };
 }
 
 export type ApplicationDataFile = JsonFile<ApplicationData> & ApplicationData;
 
 let fileHandler: ApplicationDataFile;
 
+/** Load the application data once and reuse the same handler for the rest of the process. */
 export function getApplicationData(): ApplicationDataFile {
-    if (!fileHandler) {
-        fileHandler = JsonFile.load<ApplicationData>(PROJECT_DATA_FILE_PATH, { defaultJson, transform });
-    }
-    return fileHandler;
+  if (!fileHandler) {
+    fileHandler = JsonFile.load<ApplicationData>(PROJECT_DATA_FILE_PATH, { defaultJson, transform });
+  }
+  return fileHandler;
 }

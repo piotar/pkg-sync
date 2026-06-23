@@ -1,60 +1,53 @@
-import { Argument, Command, Option } from 'commander';
-import prompts from 'prompts';
-import { getPackageJson } from '../utils/getPackageJson.js';
-import { getApplicationData } from '../utils/getApplicationData.js';
-import { ApplicationError } from '../models/ApplicationError.js';
-import interactiveOption from './options/interactive.js';
+import { defineCommand } from "citty";
+import * as p from "@clack/prompts";
+import { getPackageJson } from "../utils/getPackageJson";
+import { getApplicationData } from "../utils/getApplicationData";
+import { ApplicationError } from "../models/ApplicationError";
+import { interactiveArg } from "./sharedArgs";
 
-interface RemoveCommandOptions {
-    interactive: boolean;
-    all: boolean;
+/** `pkg-sync remove` — unregister packages by name, interactively, or all at once. */
+export const removeCommand = defineCommand({
+  meta: { name: "remove", description: "Remove package from sync", alias: "rm" },
+  args: {
+    packages: { type: "positional", required: false, description: 'Package name (use "." for the closest package.json)' },
+    interactive: interactiveArg,
+    all: { type: "boolean", alias: "a", default: false, description: "Remove all stored packages" },
+  },
+  async run({ args }) {
+    const appData = getApplicationData();
+    const appPackages = Object.keys(appData.packages);
+
+    // A literal "." stands for the name in the closest package.json.
+    const named = args._.map((name) => (name === "." ? getPackageJson().name : name));
+
+    let selectedPackages = args.all ? appPackages : named;
+    if (args.interactive && appPackages.length) {
+      selectedPackages = await pickPackages(appPackages, args.all ? appPackages : named);
+    }
+
+    if (!selectedPackages.length) {
+      throw new ApplicationError("No packages provided");
+    }
+
+    for (const name of selectedPackages) {
+      if (!appData.packages[name]) {
+        console.log(`Package '${name}' does not exist in the list`);
+      } else {
+        console.log(`${name} was removed.`);
+        delete appData.packages[name];
+      }
+    }
+    appData.$save();
+  },
+});
+
+/** Prompt the user to multiselect packages, with the given ones preselected. */
+async function pickPackages(all: string[], preselected: string[]): Promise<string[]> {
+  const result = await p.multiselect({
+    message: "Pick packages to remove",
+    options: all.map((value) => ({ value, label: value })),
+    initialValues: all.filter((value) => preselected.includes(value)),
+    required: false,
+  });
+  return p.isCancel(result) ? [] : result;
 }
-
-export default new Command('remove')
-    .alias('rm')
-    .description('Remove package from sync')
-    .addOption(interactiveOption)
-    .addOption(new Option('-a, --all', 'Remove all stored packages').default(false))
-    .addArgument(
-        new Argument('[packages...]', 'Package name (name set as "." will be set from closest package.json)').argParser<
-            string[]
-        >((name, argument = []) => [...argument, name === '.' ? getPackageJson().name : name]),
-    )
-    .action(async (packages: string[], options: RemoveCommandOptions) => {
-        const appData = getApplicationData();
-        const appPackages = Object.keys(appData.packages);
-
-        let selectedPackages = packages;
-        if (options.all) {
-            selectedPackages = appPackages;
-        }
-
-        if (options.interactive && appPackages.length) {
-            selectedPackages = (
-                await prompts({
-                    type: 'multiselect',
-                    name: 'packages',
-                    message: 'Pick packages to remove',
-                    choices: appPackages.map((value) => ({
-                        value,
-                        title: value,
-                        selected: options.all || packages.includes(value),
-                    })),
-                })
-            ).packages;
-        }
-
-        if (!selectedPackages?.length) {
-            throw new ApplicationError('No packages provided');
-        }
-
-        for (const name of selectedPackages) {
-            if (!appData.packages[name]) {
-                console.log(`Package '${name}' does not exist in the list`);
-            } else {
-                console.log(`${name} was removed.`);
-                delete appData.packages[name];
-            }
-        }
-        appData.$save();
-    });

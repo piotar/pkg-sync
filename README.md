@@ -53,114 +53,110 @@ That's it... Points 1-2 are only necessary for the first run.
 
 # Commands
 
-## add [options] [path]
+## add
 
 ```console
-Usage: pkg-sync add [options] [path]
+Add package to sync (pkg-sync add v2.0.2)
 
-Add package to sync
+USAGE pkg-sync add [OPTIONS] [PATH]
 
-Arguments:
-  path                  Path to package (path not set will be set to closest package.json)
+ARGUMENTS
 
-Options:
-  -n, --name <package>  Package name (override name from package.json)
-  -f, --force           Override package
-  -d, --dir [dirs...]   Directory to watch (override default values)
-  -h, --help            display help for command
+  PATH    Path to package (path not set will be set to closest package.json)
+
+OPTIONS
+
+  -n, --name=<name>    Package name (override name from package.json)           
+        -f, --force    Override package (Default: false)              
+    -d, --dir=<dir>    Directories to watch, comma-separated (override defaults)
 
 ```
 
-## remove|rm [options] [packages...]
+## remove
 
 ```console
-Usage: pkg-sync remove|rm [options] [packages...]
+Remove package from sync (pkg-sync remove v2.0.2)
 
-Remove package from sync
+USAGE pkg-sync remove [OPTIONS] [PACKAGES]
 
-Arguments:
-  packages           Package name (name set as "." will be set from closest package.json)
+ARGUMENTS
 
-Options:
-  -i, --interactive  Interactive mode (default: false)
-  -a, --all          Remove all stored packages (default: false)
-  -h, --help         display help for command
+  PACKAGES    Package name (use "." for the closest package.json)
+
+OPTIONS
+
+  -i, --interactive    Interactive mode (Default: false)          
+          -a, --all    Remove all stored packages (Default: false)
 
 ```
 
-## list|ls
+## list
 
 ```console
-Usage: pkg-sync list|ls [options]
+Show all stored packages (pkg-sync list v2.0.2)
 
-Show all stored packages
-
-Options:
-  -h, --help  display help for command
+USAGE pkg-sync list 
 
 ```
 
-## validate [options] [path]
+## validate
 
 ```console
-Usage: pkg-sync validate [options] [path]
+Show coverage packages from project (pkg-sync validate v2.0.2)
 
-Show coverage packages from project
+USAGE pkg-sync validate [OPTIONS] [PATH]
 
-Arguments:
-  path                  Path to package (path not set will be set to closest package.json)
+ARGUMENTS
 
-Options:
-  -d, --depth [number]  Deep search of dependencies (default: 2, preset: 2)
-  -h, --help            display help for command
+  PATH    Path to package (path not set will be set to closest package.json)
+
+OPTIONS
+
+  -d, --depth=<depth>    Deep search of dependencies (Default: 2)
 
 ```
 
-## sync [options] [path] [packages...]
+## sync
 
 ```console
-Usage: pkg-sync sync [options] [path] [packages...]
+Sync and watch packages in project (pkg-sync sync v2.0.2)
 
-Sync and watch packages in project
+USAGE pkg-sync sync [OPTIONS] [PATH]
 
-Arguments:
-  path                  Path to package (path not set will be set to closest package.json)
-  packages              Package name to sync
+ARGUMENTS
 
-Options:
-  --no-watch            Disable watch files after sync
-  -i, --interactive     Interactive mode (default: false)
-  -d, --depth [number]  Deep search of dependencies (default: 2, preset: 2)
-  -h, --help            display help for command
+  PATH    Path to package (path not set will be set to closest package.json)
+
+OPTIONS
+
+              --watch    Watch files after sync (Default: true)  
+           --no-watch    Disable watch files after sync                    
+    -i, --interactive    Interactive mode (Default: false)       
+  -d, --depth=<depth>    Deep search of dependencies (Default: 2)
 
 ```
 
 ## update-check
 
 ```console
-Usage: pkg-sync update-check [options]
+Check version of 'pkg-sync' (pkg-sync update-check v2.0.2)
 
-Check version of 'pkg-sync'
-
-Options:
-  -h, --help  display help for command
+USAGE pkg-sync update-check 
 
 ```
 
 ## config
 
 ```console
-Usage: pkg-sync config [options] [command]
+Config (pkg-sync config v2.0.2)
 
-Config
+USAGE pkg-sync config set|get|restore
 
-Options:
-  -h, --help         display help for command
+COMMANDS
 
-Commands:
-  set <key> <value>  Set config
-  get [key]          Get config
-  restore            Restore config to default
-  help [command]     display help for command
+      set    Set config               
+      get    Get config               
+  restore    Restore config to default
 
+Use pkg-sync config <command> --help for more information about a command.
 ```
