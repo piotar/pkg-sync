@@ -5,7 +5,21 @@ on:
     types: [created]
 
 jobs:
+  # Gate: the release must typecheck, lint and pass tests before it can publish.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+      - run: bun run lint
+      - run: bun test
+
   publish-npm:
+    needs: verify
     runs-on: ubuntu-latest
     permissions:
       # Required for npm Trusted Publishing (OIDC): lets the job mint an OIDC token
