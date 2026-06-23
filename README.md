@@ -5,24 +5,34 @@
 ![node-current (scoped)](https://img.shields.io/node/v/@piotar/pkg-sync)
 ![NPM](https://img.shields.io/npm/l/@piotar/pkg-sync)
 
-A utility for synchronization multiple packages, without any symlinks and any changes in source projects(package.json, etc.).
+Develop a local package and see it live in another project — **without symlinks and without touching any `package.json`**.
 
-It is a simple application to **watching and copying files** from project to another project using CLI.
+`pkg-sync` watches a package's build output and copies it straight into the consuming project's `node_modules`, so the project sees it exactly as if it were installed from the registry.
 
-# Installation
+## Why not `npm link`?
 
+`npm link` creates a symlink, and symlinks break in many real-world setups: bundlers resolving a dependency twice (duplicate React, hooks errors), `peerDependencies` resolved from the wrong tree, tools that don't follow symlinks, and Windows quirks. Publishing to a registry on every change is too slow for tight feedback loops.
+
+`pkg-sync` avoids all of that by copying **real files** into `node_modules/<package>`. Nothing in the consuming project changes — no symlink, no edited `package.json`, no lockfile churn — so the dependency behaves like a normal install.
+
+## How it works
+
+- You **register** a package once by its path. Its name and location are stored in a global registry at `~/.pkg-sync/data.json`.
+- On **`sync`**, `pkg-sync` reads the target project's `package.json`, resolves its dependency tree up to a configurable **depth** (default `2`), and intersects it with the registered packages. Every match is mirrored from its source into the project's `node_modules`.
+- Only relevant files are copied: by default the `dist`, `lib`, `build` and `src` directories, minus common noise (VCS folders, lockfiles, editor files). A package can override which directories are watched.
+- With watching enabled (the default), changes in a source package are debounced and re-copied automatically, giving a live local feedback loop.
+
+## Installation
 
 ```sh
 npm install -g @piotar/pkg-sync
 ```
 
-# Usage
+Requires Node.js >= 22.
 
-In some cases, we can not use symbolic links for dependencies. The solution is to copy build files to our project and test it locally. 
+## Usage
 
-## Example
-
-We have a main project (`App`) and 2 dependencies (`Ui` and `Store`) with difference locations (this is not monorepository).
+We have a main project (`App`) and 2 dependencies (`Ui` and `Store`) in different locations (this is **not** a monorepo):
 
 ```
 ~
@@ -42,21 +52,37 @@ We have a main project (`App`) and 2 dependencies (`Ui` and `Store`) with differ
         └── etc...
 ```
 
-First of all, we need to add dependencies to `pkg-sync`.
+1. Register each dependency — from `~/external/Ui` and `~/external/Store` run `pkg-sync add .` (`.` resolves the name from the closest `package.json`).
+2. From `~/projects/App` run `pkg-sync sync .` — this copies the dependency files into `App/node_modules` and starts watching for changes.
 
-1. Go to directories `~/external/Ui` and `~/external/Store`.
-2. Run command `pkg-sync add .`  with each directory.
-3. Go to `~/projects/App` directory.
-4. Run command `pkg-sync sync .`. This will copy dependency files and start watching for changes.
+That's it. Step 1 is only needed the first time; afterwards a single `pkg-sync sync .` is enough.
 
-That's it... Points 1-2 are only necessary for the first run.
+### Useful commands
+
+- `pkg-sync list` — show every registered package, the data file path, and the default watch directories.
+- `pkg-sync validate .` — preview which registered packages would be synced for a project, without copying anything.
+- `pkg-sync sync . --no-watch` — copy once and exit, instead of watching.
+- `pkg-sync sync . -i` — pick the packages to sync interactively.
+- `pkg-sync remove <name>` / `pkg-sync remove -i` — unregister packages.
+
+### Configuration
+
+Settings live in the same global registry and are managed with `pkg-sync config`:
+
+- `pkg-sync config get` — print all settings.
+- `pkg-sync config set depth 3` — how deep the dependency tree is searched during `sync`/`validate` (values are parsed as JSON).
+- `pkg-sync config restore` — reset to defaults.
+
+To watch non-default directories for a specific package, pass them when registering: `pkg-sync add . -d dist,types`.
+
+> Colored output honors the `NO_COLOR` environment variable and is disabled automatically when output is not a TTY.
 
 # Commands
 
 ## add
 
 ```console
-Add package to sync (pkg-sync add v2.0.2)
+Add package to sync (pkg-sync add v2.0.3)
 
 USAGE pkg-sync add [OPTIONS] [PATH]
 
@@ -75,7 +101,7 @@ OPTIONS
 ## remove
 
 ```console
-Remove package from sync (pkg-sync remove v2.0.2)
+Remove package from sync (pkg-sync remove v2.0.3)
 
 USAGE pkg-sync remove [OPTIONS] [PACKAGES]
 
@@ -93,7 +119,7 @@ OPTIONS
 ## list
 
 ```console
-Show all stored packages (pkg-sync list v2.0.2)
+Show all stored packages (pkg-sync list v2.0.3)
 
 USAGE pkg-sync list 
 
@@ -102,7 +128,7 @@ USAGE pkg-sync list
 ## validate
 
 ```console
-Show coverage packages from project (pkg-sync validate v2.0.2)
+Show coverage packages from project (pkg-sync validate v2.0.3)
 
 USAGE pkg-sync validate [OPTIONS] [PATH]
 
@@ -119,7 +145,7 @@ OPTIONS
 ## sync
 
 ```console
-Sync and watch packages in project (pkg-sync sync v2.0.2)
+Sync and watch packages in project (pkg-sync sync v2.0.3)
 
 USAGE pkg-sync sync [OPTIONS] [PATH]
 
@@ -139,7 +165,7 @@ OPTIONS
 ## update-check
 
 ```console
-Check version of 'pkg-sync' (pkg-sync update-check v2.0.2)
+Check version of 'pkg-sync' (pkg-sync update-check v2.0.3)
 
 USAGE pkg-sync update-check 
 
@@ -148,7 +174,7 @@ USAGE pkg-sync update-check
 ## config
 
 ```console
-Config (pkg-sync config v2.0.2)
+Config (pkg-sync config v2.0.3)
 
 USAGE pkg-sync config set|get|restore
 
