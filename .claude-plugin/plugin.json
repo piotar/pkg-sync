@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "pkg-sync",
+  "version": "2.3.0",
+  "description": "Mirror a locally-developed npm package into another project's node_modules (no symlinks, no package.json edits) when testing unpublished local changes across separate repos.",
+  "author": {
+    "name": "Piotr Tarasiuk"
+  },
+  "homepage": "https://github.com/piotar/pkg-sync",
+  "repository": "https://github.com/piotar/pkg-sync.git",
+  "license": "MIT",
+  "keywords": [
+    "cli",
+    "sync packages",
+    "dev-tool"
+  ],
+  "skills": [
+    "./"
+  ]
+}

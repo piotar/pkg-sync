@@ -29,7 +29,8 @@
     "files": [
         "dist",
         "README.md",
-        "SKILL.md"
+        "SKILL.md",
+        ".claude-plugin"
     ],
     "engines": {
         "node": ">=22.0.0"
