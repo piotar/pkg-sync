@@ -67,9 +67,19 @@ Small, single-bin CLI organized by responsibility under `src/`:
 
 ## Release & CI
 
-- **Versioning:** changesets. Add a changeset per change (`bun run changeset`); at release time `bun run version-packages` bumps `package.json` and writes `CHANGELOG.md`, consuming the changesets.
+- **Versioning:** changesets. For any change that affects the published package, add a changeset
+  (`bun run changeset`) and commit the `.md` alongside the PR. A change with no effect on the package
+  needs no changeset.
 - **CI** (`.github/workflows/ci.yml`): typecheck + lint + test + build on pull requests and pushes to `main`.
-- **Publish** (`.github/workflows/npm-publish.yml`): triggered by creating a **GitHub Release** (tag `vX.Y.Z`). Publishes to npm via **OIDC trusted publishing** (no token; provenance is automatic). Requires a trusted publisher configured for the package on npmjs.com (repo `piotar/pkg-sync`, workflow `npm-publish.yml`).
-- The release flow is **manual**: bump via changesets → commit → create the GitHub Release.
+- **Release** (`.github/workflows/release.yml`): on push to `main`, `changesets/action@v1`
+  opens/updates a "Version Packages" PR (bumps the version + writes `CHANGELOG.md`). **Merging that PR**
+  publishes to npm via **OIDC trusted publishing** (no token; provenance is automatic), pushes the
+  `vX.Y.Z` tag and creates the GitHub Release. Requires a trusted publisher configured on npmjs.com
+  (repo `piotar/pkg-sync`, workflow `release.yml`).
+- **Cutting a release = just merge the "Version Packages" PR.** No cron, no PAT.
+- **Renovate** (`renovate.json`): weekly dependency PRs, automerge non-major after CI + a 3-day
+  `minimumReleaseAge`; majors are reviewed manually. Dependency bumps do **not** create their own
+  release — they ride into the next changeset-driven publish. For a deps-only release, run
+  `bun run changeset` (patch) with a note about the bumps.
 
 > The `README.md` "# Commands" section is maintained by hand (the old `doc` auto-generator was removed). Keep it in sync when adding or changing commands/flags.
