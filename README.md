@@ -89,6 +89,22 @@ The output contract:
 
 A [`SKILL.md`](./SKILL.md) (agentskills.io format) ships with the package so the tool can be taught to AI agents and installed via a skill manager.
 
+### Claude Code plugin
+
+The package doubles as a [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin — a [`.claude-plugin/plugin.json`](./.claude-plugin/plugin.json) manifest exposes the bundled `SKILL.md` as a `pkg-sync` skill. Load it straight from `node_modules` (no separate install):
+
+```sh
+claude --plugin-dir node_modules/@piotar/pkg-sync     # per-session
+```
+
+To make the skill available globally instead, symlink the installed package into your skills directory — it then auto-loads in every session:
+
+```sh
+ln -s "$(npm root -g)/@piotar/pkg-sync" ~/.claude/skills/pkg-sync
+```
+
+Either way Claude gains a `pkg-sync` skill that knows when and how to mirror your local package into another project.
+
 # Commands
 
 Run `pkg-sync <command> --help` for the full, up-to-date options of any command.
