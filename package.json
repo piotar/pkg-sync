@@ -56,7 +56,7 @@
         "@types/node": "26.1.1",
         "@types/picomatch": "4.0.3",
         "citty": "0.2.2",
-        "eslint": "10.6.0",
+        "eslint": "10.7.0",
         "picomatch": "4.0.5",
         "typescript": "6.0.3",
         "typescript-eslint": "8.63.0"
