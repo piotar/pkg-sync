@@ -57,7 +57,7 @@
         "@types/picomatch": "4.0.3",
         "citty": "0.2.2",
         "eslint": "10.8.0",
-        "picomatch": "4.0.5",
+        "picomatch": "4.0.7",
         "typescript": "6.0.3",
         "typescript-eslint": "8.66.0"
     }
