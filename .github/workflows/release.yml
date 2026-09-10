@@ -45,7 +45,7 @@ jobs:
       # No NODE_AUTH_TOKEN: npm exchanges the OIDC token for short-lived credentials
       # and attaches build provenance automatically.
       - name: Create Release PR or publish to npm
-        uses: changesets/action@v1
+        uses: changesets/action@v2.1.2
         with:
           version: bun run version-packages
           publish: bun run release
