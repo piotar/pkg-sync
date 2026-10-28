@@ -31,7 +31,7 @@ jobs:
       # Node provides the npm CLI that changesets uses to publish via OIDC.
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
           registry-url: https://registry.npmjs.org
 
       # Trusted Publishing landed in npm 11.5.1; Node ships an older npm, so upgrade.
